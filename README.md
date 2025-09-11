@@ -1,1 +1,0 @@
-# TIDY-Chores-App
