@@ -1,0 +1,13 @@
+.MemberName {
+  display: flex;           /* turn on flexbox */
+  flex-direction: row;     /* arrange children in a row (side by side) */
+  justify-content: center; /* center them horizontally */
+  align-items: center;     /* align them vertically */
+  gap: 20px;               /* space between items */
+}
+
+.AddUser2, .AddUser3, .AddUser4 {
+  background-color: #f0f0f0;
+  padding: 10px 15px;
+  border-radius: 8px;
+}
