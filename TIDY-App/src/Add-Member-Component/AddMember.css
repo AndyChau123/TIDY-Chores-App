@@ -1,13 +1,23 @@
 .MemberName {
-  display: flex;           /* turn on flexbox */
-  flex-direction: row;     /* arrange children in a row (side by side) */
-  justify-content: center; /* center them horizontally */
-  align-items: center;     /* align them vertically */
-  gap: 20px;               /* space between items */
+  display: flex;          
+  flex-direction: row;     
+  justify-content: flex-end; 
+  align-items: flex-start;     
+  gap: 20px;             
+  position: absolute;
+  top: 20px;
+  right: 50px;  
 }
 
 .AddUser2, .AddUser3, .AddUser4 {
   background-color: #f0f0f0;
   padding: 10px 15px;
   border-radius: 8px;
+  width: 200px;
+  height: 40px;
+}
+
+.UserButton2, .UserButton3, .UserButton4 {
+  width: 200px;
+  height: 40px;
 }
