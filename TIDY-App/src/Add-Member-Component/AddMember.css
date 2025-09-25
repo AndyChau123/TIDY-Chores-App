@@ -1,0 +1,23 @@
+.MemberName {
+  display: flex;          
+  flex-direction: row;     
+  justify-content: flex-end; 
+  align-items: flex-start;     
+  gap: 20px;             
+  position: absolute;
+  top: 20px;
+  right: 50px;  
+}
+
+.AddUser2, .AddUser3, .AddUser4 {
+  background-color: #f0f0f0;
+  padding: 10px 15px;
+  border-radius: 8px;
+  width: 225px;
+  height: 40px;
+}
+
+.UserButton2, .UserButton3, .UserButton4 {
+  width: 250px;
+  height: 40px;
+}
