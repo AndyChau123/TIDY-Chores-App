@@ -1,0 +1,77 @@
+.ListStructure {
+  position: relative;
+    height: 100px;
+    width: 30px;
+    border: 1px solid black;
+    margin: 10px 0 10px 10px;
+    /* top, right, bottom, left */
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0;
+
+    /* Keep it on the left */
+    float: left;
+    /* OR use position: absolute; left: 0; */
+}
+
+.ListComponent {
+  display: flexbox;
+  padding: 4px;
+}
+
+.chore-list-container {
+  position: fixed;
+  left: 100px;
+  top: 40px;
+  width: 300px;
+  min-height: 200px;
+  background: #f7f7f7;
+  border-right: 2px solid #ddd;
+  border: 2px solid #000000;         /* Add a border around the container */
+  border-radius: 16px;            /* Rounded corners */
+  box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+  padding: 16px;
+  transition: width 0.3s;
+  z-index: 100;
+}
+
+.chore-list-container.collapsed {
+  width: 170px;
+  overflow: hidden;
+}
+
+.chore-list-header {
+  color: black;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chore-list {
+  color: black;
+  margin-top: 16px;
+  list-style: none;
+  padding: 0;
+}
+
+.chore-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+/* Example structure in your main App or page component */
+.app-layout {
+  display: flex;
+  /* Flexbox for horizontal layout */
+}
+
+.ChoreList {
+  /* Styles for ChoreList component */
+}
+
+.MainContent {
+  /* Styles for MainContent component, like add member section */
+}
