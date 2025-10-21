@@ -3,28 +3,73 @@ import "./AddMember.css";
 
 function AddMember() {
 
-  return (
+  const [members, setMembers] = useState([
+    { id: 2, name: "", isEditing: false, isAdded: false },
+    { id: 3, name: "", isEditing: false, isAdded: false },
+    { id: 4, name: "", isEditing: false, isAdded: false },
+  ]);
+
+    const editMemberName = (index) => {
+    const updated = [...members];
+    updated[index].isEditing = true;
+    setMembers(updated);
+  };
+
+  const updateMemberName = (e, index) => {
+    const updated = [...members];
+    updated[index].name = e.target.value;
+    setMembers(updated);
+  };
+
+  const saveMemberName = (index) => {
+    const updated = [...members];
+    if (updated[index].name.trim() === "") return;
+    updated[index].isEditing = false;
+    updated[index].isAdded = true;
+    setMembers(updated);
+  };
+
+return (
+  //Allows user to edit names
     <div className="MemberName">
-      <div className="User2">
-        <h3 className="AddUser2">User #2</h3>
-        <button className="UserButton2">Add Member
-            <br /> +
-        </button>
-      </div>
+      {members.map((member, index) => (
+        <div key={member.id} className={`User${member.id}`}>
+          {member.isEditing ? (
+            <div className="editMemberName">
+              <input
+                type="text"
+                placeholder="Enter Member Name"
+                value={member.name}
+                onChange={(e) => updateMemberName(e, index)}
+                className="NameInput"
+              />
+              <button className="SaveButton" onClick={() => saveMemberName(index)}>
+                Save
+              </button>
+            </div>
+          ) : (
+            //Allows user to save edited name
+            <h3
+              className={`AddUser${member.id}`}
+              onClick={() => editMemberName(index)}
+              style={{ cursor: "pointer" }}
+            >
+              {member.name ? member.name : `User #${member.id}`}
+            </h3> // Clickable header that nows becomes a button
+          )} 
 
-      <div className="User3">
-        <h3 className="AddUser3">User #3</h3>
-        <button className="UserButton3">Add Member
-            <br /> +
-        </button>
-      </div>
-
-      <div className="User4">
-        <h3 className="AddUser4">User #4</h3>
-        <button className="UserButton4">Add Member
-            <br /> +
-        </button>
-      </div>
+          {/* Show "Add Member" button only if not added yet */}
+          {!member.isAdded && (
+            <button
+              className={`UserButton${member.id}`}
+              onClick={() => editMemberName(index)}
+            >
+              Add Member
+              <br />+
+            </button>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
