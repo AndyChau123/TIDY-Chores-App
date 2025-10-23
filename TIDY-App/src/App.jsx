@@ -5,7 +5,6 @@ import ChoreList from './Chore-List-Component/ChoreList.jsx'
 
 function App() {
 
-
   return (
     <>
       <AddMember />
