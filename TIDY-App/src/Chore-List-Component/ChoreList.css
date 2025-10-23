@@ -57,9 +57,111 @@
   padding: 0;
 }
 
-.chore-list li {
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
+.chore-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.chore-item {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+/* layout for checkbox + content */
+.chore-item__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: default; /* clicking the row shouldn't always toggle */
+}
+
+/* keep label content clickable */
+.chore-item__label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  cursor: pointer;
+}
+
+/* delete button */
+.chore-item__remove {
+  background: transparent;
+  border: none;
+  color: #ef4444; /* red-500 */
+  font-size: 18px;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  flex: 0 0 auto;
+}
+
+.chore-item__remove:hover {
+  background: rgba(239,68,68,0.1);
+  color: #b91c1c; /* red-700 */
+}
+
+/* ensure layout stays tidy on small container */
+.chore-item__content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-width: 0; /* allow ellipsis to work */
+}
+
+/* title */
+.chore-item__title {
+  font-size: 14px;
+  color: #111827;
+}
+
+/* meta (due + priority) */
+.chore-item__meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-left: 12px;
+  align-self: center;
+}
+
+/* due date styling: one-line, modest size, ellipsis if too long */
+.due {
+  font-size: 12px;
+  color: #374151; /* gray-700 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90px;
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(0,0,0,0.03);
+}
+
+/* rounded badge for priority (kept) */
+.priority-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 999px;
+  color: #111;
+  text-transform: capitalize;
+  min-width: 56px;
+  text-align: center;
+}
+
+/* finished look: gray + strike-through on the title, don't remove the item */
+.chore-item.done .chore-item__title {
+  text-decoration: line-through;
+  color: #6b7280; /* gray-500 */
+}
+
+.chore-item.done .chore-item__content {
+  opacity: 0.65;
 }
 
 /* Example structure in your main App or page component */
