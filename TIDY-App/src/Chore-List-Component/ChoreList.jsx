@@ -2,14 +2,6 @@ import React, { useState } from "react";
 import "./ChoreList.css";
 import AddChore from "../Add-Chore-Component/AddChore.jsx";
 
-const seed = [
-  "Wash dishes",
-  "Vacuum living room",
-  "Take out trash",
-  "Laundry",
-  "Clean bathroom",
-];
-
 function toChoreObject(title, idx) {
   return {
     id: `seed_${idx}`,
@@ -33,7 +25,8 @@ function formatDateShort(dateStr) {
 
 function ChoreList() {
   const [expanded, setExpanded] = useState(true);
-  const [chores, setChores] = useState(seed.map(toChoreObject));
+  // start with an empty chore list (removed sample seed chores)
+  const [chores, setChores] = useState([]);
 
   const priorityColors = {
     low: "#D1FAE5",

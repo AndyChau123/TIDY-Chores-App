@@ -1,28 +1,126 @@
 .MemberName {
-  display: flex;          
-  flex-direction: row;     
-  justify-content: flex-end; 
-  align-items: flex-start;     
-  gap: 20px;             
-  position: absolute;
-  top: 20px;
-  right: 50px;  
+  display: flex;
+  flex-wrap: nowrap;        /* keep items in one row on wide screens */
+  gap: 16px;
+  justify-content: flex-end; /* push the row to the right */
+  align-items: flex-start;   /* align to top of the container */
+  width: auto; /* let wrapper control full-width behavior */
+  padding: 0;
+  box-sizing: border-box;
+  position: fixed;
+  top: 10px;
+  right: 20px;
 }
 
-.AddUser2, .AddUser3, .AddUser4 {
+/* ensure explicit ordering (left -> right: User2, User3, User4) */
+.User2 { order: 1; }
+.User3 { order: 2; }
+.User4 { order: 3; }
+
+.User2,
+.User3,
+.User4 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  flex: 0 0 auto;   /* don't grow to fill, keep intrinsic width */
+  min-width: 140px;
+  max-width: 260px;
+  margin: 0;
+}
+
+/* headings (the clickable name) */
+.AddUser2,
+.AddUser3,
+.AddUser4 {
   background-color: #f0f0f0;
   padding: 10px 15px;
   border-radius: 8px;
-  width: 225px;
-  height: 40px;
+  width: 100%;
+  box-sizing: border-box;
+  height: auto;
+  margin: 0;
+  text-align: center;
+  cursor: pointer;
+  word-break: break-word;
 }
 
-.UserButton2, .UserButton3, .UserButton4 {
-  width: 250px;
-  height: 40px;
+/* buttons: avoid fixed wide sizes and allow wrapping */
+.UserButton2,
+.UserButton3,
+.UserButton4 {
+  padding: 8px 12px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 220px;
+  box-sizing: border-box;
+  white-space: normal;
+  word-break: break-word;
+  text-align: center;
+  background: #0078d4;
+  color: #fff;
+  border: none;
+  cursor: pointer;
 }
 
-.User2, .User3, .User4 {
-  position: relative;  
-  margin-bottom: 20px;
+/* small adjustments for edit state */
+.editMemberName {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  justify-content: center;
+}
+
+.NameInput {
+  flex: 1 1 auto;
+  min-width: 100px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.SaveButton {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  background: #10b981;
+  color: white;
+  cursor: pointer;
+}
+
+/* wrapper for MemberName alignment */
+.AddMemberWrapper {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: flex-end; /* push MemberName to the right */
+  align-items: flex-start;    /* align to top */
+  padding-top: 8px;           /* small top spacing */
+}
+
+/* responsive: stack on small screens, keep items aligned to the right */
+@media (max-width: 600px) {
+  .AddMemberWrapper {
+    justify-content: flex-end;
+    padding-top: 6px;
+  }
+
+  .MemberName {
+    flex-direction: column;
+    align-items: flex-end; /* keep them on the right when stacked */
+    gap: 12px;
+    padding: 12px 0 0 0;
+  }
+
+  .User2,
+  .User3,
+  .User4 {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 100%;
+  }
 }

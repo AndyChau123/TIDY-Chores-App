@@ -29,47 +29,51 @@ function AddMember({ onAddMember }) {
     updated[index].isAdded = true;
     setMembers(updated);
 
-    onAddMember({ id: updated[index].id, name, chores: [] });
+    if (typeof onAddMember === "function") {
+      onAddMember({ id: updated[index].id, name, chores: [] });
+    }
   };
 
   return (
-    <div className="MemberName">
-      {members.map((member, index) => (
-        <div key={member.id} className={`User${member.id}`}>
-          {member.isEditing ? (
-            <div className="editMemberName">
-              <input
-                type="text"
-                placeholder="Enter Member Name"
-                value={member.name}
-                onChange={(e) => updateMemberName(e, index)}
-                className="NameInput"
-              />
-              <button className="SaveButton" onClick={() => saveMemberName(index)}>
-                Save
-              </button>
-            </div>
-          ) : (
-            <h3
-              className={`AddUser${member.id}`}
-              onClick={() => editMemberName(index)}
-              style={{ cursor: "pointer" }}
-            >
-              {member.name ? member.name : `User #${member.id}`}
-            </h3>
-          )}
+    <div className="AddMemberWrapper">
+      <div className="MemberName">
+        {members.map((member, index) => (
+          <div key={member.id} className={`User${member.id}`}>
+            {member.isEditing ? (
+              <div className="editMemberName">
+                <input
+                  type="text"
+                  placeholder="Enter Member Name"
+                  value={member.name}
+                  onChange={(e) => updateMemberName(e, index)}
+                  className="NameInput"
+                />
+                <button className="SaveButton" onClick={() => saveMemberName(index)}>
+                  Save
+                </button>
+              </div>
+            ) : (
+              <h3
+                className={`AddUser${member.id}`}
+                onClick={() => editMemberName(index)}
+                style={{ cursor: "pointer" }}
+              >
+                {member.name ? member.name : `User #${member.id}`}
+              </h3>
+            )}
 
-          {!member.isAdded && (
-            <button
-              className={`UserButton${member.id}`}
-              onClick={() => editMemberName(index)}
-            >
-              Add Member
-              <br />+
-            </button>
-          )}
-        </div>
-      ))}
+            {!member.isAdded && (
+              <button
+                className={`UserButton${member.id}`}
+                onClick={() => editMemberName(index)}
+                aria-label={`Add member ${member.id}`}
+              >
+                Add Member +
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

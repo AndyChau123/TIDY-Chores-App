@@ -23,8 +23,8 @@
 }
 
 .chore-list-container {
-  position: fixed;
-  left: 100px;
+  position: flex;
+  left: 10px;
   top: 40px;
   width: 300px;
   min-height: 200px;
@@ -36,11 +36,6 @@
   padding: 16px;
   transition: width 0.3s;
   z-index: 100;
-}
-
-.chore-list-container.collapsed {
-  width: 170px;
-  overflow: hidden;
 }
 
 .chore-list-header {
