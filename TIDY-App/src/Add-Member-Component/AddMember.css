@@ -21,3 +21,8 @@
   width: 250px;
   height: 40px;
 }
+
+.User2, .User3, .User4 {
+  position: relative;  
+  margin-bottom: 20px;
+}
