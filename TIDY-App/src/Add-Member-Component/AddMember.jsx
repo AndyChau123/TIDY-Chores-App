@@ -1,15 +1,14 @@
 import React, { useState } from "react";
 import "./AddMember.css";
 
-function AddMember() {
-
+function AddMember({ onAddMember }) {
   const [members, setMembers] = useState([
     { id: 2, name: "", isEditing: false, isAdded: false },
     { id: 3, name: "", isEditing: false, isAdded: false },
     { id: 4, name: "", isEditing: false, isAdded: false },
   ]);
 
-    const editMemberName = (index) => {
+  const editMemberName = (index) => {
     const updated = [...members];
     updated[index].isEditing = true;
     setMembers(updated);
@@ -23,14 +22,17 @@ function AddMember() {
 
   const saveMemberName = (index) => {
     const updated = [...members];
-    if (updated[index].name.trim() === "") return;
+    const name = updated[index].name.trim();
+    if (name === "") return;
+
     updated[index].isEditing = false;
     updated[index].isAdded = true;
     setMembers(updated);
+
+    onAddMember({ id: updated[index].id, name, chores: [] });
   };
 
-return (
-  //Allows user to edit names
+  return (
     <div className="MemberName">
       {members.map((member, index) => (
         <div key={member.id} className={`User${member.id}`}>
@@ -48,17 +50,15 @@ return (
               </button>
             </div>
           ) : (
-            //Allows user to save edited name
             <h3
               className={`AddUser${member.id}`}
               onClick={() => editMemberName(index)}
               style={{ cursor: "pointer" }}
             >
               {member.name ? member.name : `User #${member.id}`}
-            </h3> // Clickable header that nows becomes a button
-          )} 
+            </h3>
+          )}
 
-          {/* Show "Add Member" button only if not added yet */}
           {!member.isAdded && (
             <button
               className={`UserButton${member.id}`}

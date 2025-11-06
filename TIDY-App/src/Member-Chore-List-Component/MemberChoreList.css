@@ -1,0 +1,23 @@
+.member-chore-lists {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.member-chore-box {
+  position: relative; 
+}
+
+.member-chore-box .chore-list-container {
+  position: absolute;
+  top: 50px;          
+  left: 0;
+  width: 250px;
+  min-height: 150px;
+  background: #f7f7f7;
+  border: 2px solid #000;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+  z-index: 10;
+}
