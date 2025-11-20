@@ -17,8 +17,6 @@ function MemberChoreList({ members, onUpdateMemberChores }) {
     const newChore = {
       id: `${memberId}_${Date.now()}`,
       title: choreTitle,
-      dueDate: null,
-      priority: "medium",
       completed: false,
       createdAt: new Date().toISOString(),
     };

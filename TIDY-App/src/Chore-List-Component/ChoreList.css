@@ -1,46 +1,13 @@
-.ListStructure {
-  position: relative;
-    height: 100px;
-    width: 30px;
-    border: 1px solid black;
-    margin: 10px 0 10px 10px;
-    /* top, right, bottom, left */
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: #f0f0f0;
-
-    /* Keep it on the left */
-    float: left;
-    /* OR use position: absolute; left: 0; */
-}
-
-.ListComponent {
-  display: flexbox;
-  padding: 4px;
-}
-
 .chore-list-container {
-  position: fixed;
-  left: 100px;
-  top: 40px;
-  width: 300px;
+  width: 100%;
+  max-width: 400px;
   min-height: 200px;
   background: #f7f7f7;
-  border-right: 2px solid #ddd;
-  border: 2px solid #000000;         /* Add a border around the container */
-  border-radius: 16px;            /* Rounded corners */
-  box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+  border: 2px solid #000000;
+  border-radius: 16px;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
   padding: 16px;
-  transition: width 0.3s;
-  z-index: 100;
-}
-
-.chore-list-container.collapsed {
-  width: 170px;
-  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .chore-list-header {
@@ -48,49 +15,68 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 16px;
+}
+
+.chore-list-header h2 {
+  margin: 0;
+  font-size: 1.5em;
 }
 
 .chore-list {
   color: black;
-  margin-top: 16px;
   list-style: none;
   padding: 0;
-}
-
-.chore-list {
-  list-style: none;
   margin: 0;
-  padding: 0;
 }
 
 .chore-item {
-  padding: 8px 12px;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  padding: 10px 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-/* layout for checkbox + content */
+.chore-item:last-child {
+  border-bottom: none;
+}
+
 .chore-item__row {
   display: flex;
   align-items: center;
   gap: 10px;
-  cursor: default; /* clicking the row shouldn't always toggle */
+  cursor: default;
 }
 
-/* keep label content clickable */
 .chore-item__label {
   display: flex;
   align-items: center;
   gap: 10px;
   flex: 1;
   cursor: pointer;
+  min-width: 0;
 }
 
-/* delete button */
+.chore-item__checkbox {
+  flex-shrink: 0;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+.chore-item__title {
+  font-size: 15px;
+  color: #111827;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
 .chore-item__remove {
   background: transparent;
   border: none;
-  color: #ef4444; /* red-500 */
-  font-size: 18px;
+  color: #ef4444;
+  font-size: 20px;
   line-height: 1;
   padding: 4px 8px;
   border-radius: 6px;
@@ -100,80 +86,24 @@
 }
 
 .chore-item__remove:hover {
-  background: rgba(239,68,68,0.1);
-  color: #b91c1c; /* red-700 */
+  background: rgba(239, 68, 68, 0.1);
+  color: #b91c1c;
 }
 
-/* ensure layout stays tidy on small container */
-.chore-item__content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  min-width: 0; /* allow ellipsis to work */
-}
-
-/* title */
-.chore-item__title {
-  font-size: 14px;
-  color: #111827;
-}
-
-/* meta (due + priority) */
-.chore-item__meta {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-left: 12px;
-  align-self: center;
-}
-
-/* due date styling: one-line, modest size, ellipsis if too long */
-.due {
-  font-size: 12px;
-  color: #374151; /* gray-700 */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 90px;
-  display: inline-block;
-  padding: 2px 6px;
-  border-radius: 6px;
-  background: rgba(0,0,0,0.03);
-}
-
-/* rounded badge for priority (kept) */
-.priority-badge {
-  display: inline-block;
-  padding: 4px 8px;
-  font-size: 12px;
-  border-radius: 999px;
-  color: #111;
-  text-transform: capitalize;
-  min-width: 56px;
-  text-align: center;
-}
-
-/* finished look: gray + strike-through on the title, don't remove the item */
 .chore-item.done .chore-item__title {
   text-decoration: line-through;
-  color: #6b7280; /* gray-500 */
+  color: #6b7280;
+  opacity: 0.7;
 }
 
-.chore-item.done .chore-item__content {
-  opacity: 0.65;
+@media (max-width: 768px) {
+  .chore-list-container {
+    max-width: 100%;
+  }
 }
 
-/* Example structure in your main App or page component */
-.app-layout {
-  display: flex;
-  /* Flexbox for horizontal layout */
-}
-
-.ChoreList {
-  /* Styles for ChoreList component */
-}
-
-.MainContent {
-  /* Styles for MainContent component, like add member section */
+@media (max-width: 480px) {
+  .chore-item__title {
+    font-size: 14px;
+  }
 }

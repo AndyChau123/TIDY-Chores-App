@@ -1,28 +1,146 @@
 .MemberName {
-  display: flex;          
-  flex-direction: row;     
-  justify-content: flex-end; 
-  align-items: flex-start;     
-  gap: 20px;             
-  position: absolute;
-  top: 20px;
-  right: 50px;  
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
-.AddUser2, .AddUser3, .AddUser4 {
-  background-color: #f0f0f0;
+.User2,
+.User3,
+.User4 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.AddUser2,
+.AddUser3,
+.AddUser4 {
+  background-color: #000000;
   padding: 10px 15px;
   border-radius: 8px;
-  width: 225px;
+  width: 200px;
   height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  text-align: center;
 }
 
-.UserButton2, .UserButton3, .UserButton4 {
-  width: 250px;
-  height: 40px;
+.UserButton2,
+.UserButton3,
+.UserButton4 {
+  width: 200px;
+  height: 50px;
+  cursor: pointer;
+  background-color: #2e7dff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background-color 0.2s;
 }
 
-.User2, .User3, .User4 {
-  position: relative;  
-  margin-bottom: 20px;
+.UserButton2:hover,
+.UserButton3:hover,
+.UserButton4:hover {
+  background-color: #1b63d6;
+}
+
+.editMemberName {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.NameInput {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  width: 200px;
+  font-size: 14px;
+}
+
+.SaveButton {
+  padding: 8px 16px;
+  background-color: #2e7dff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.SaveButton:hover {
+  background-color: #1b63d6;
+}
+
+.RemoveMemberButton {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #ef4444;
+  color: white;
+  border: 2px solid white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.2s;
+  z-index: 10;
+  padding: 0;
+  line-height: 1;
+}
+
+.RemoveMemberButton:hover {
+  background-color: #dc2626;
+}
+
+.CancelEditButton {
+  padding: 8px 16px;
+  background-color: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.CancelEditButton:hover {
+  background-color: #4b5563;
+}
+
+.editMemberName .button-group {
+  display: flex;
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  .MemberName {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+
+  .AddUser2,
+  .AddUser3,
+  .AddUser4,
+  .UserButton2,
+  .UserButton3,
+  .UserButton4,
+  .NameInput {
+    width: 100%;
+  }
 }

@@ -1,42 +1,105 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+  gap: 20px;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between; /* changed to place logo left and controls right */
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
 }
 
 .logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.logo__img {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  border-radius: 8px;
+  transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
+}
+
+/* subtle hover/focus effect */
+.logo:hover .logo__img,
+.logo:focus .logo__img {
+  transform: scale(1.06);
+  filter: saturate(1.05);
+}
+
+/* keyboard focus visible for accessibility */
+.logo:focus {
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.18);
+  border-radius: 8px;
+}
+
+.app-content {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  width: 100%;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.chore-list-section {
+  flex: 0 0 auto;
+  min-width: 300px;
+  max-width: 400px;
+}
+
+.member-chore-section {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1200px) {
+  .app-content {
+    flex-direction: column;
   }
-  to {
-    transform: rotate(360deg);
+
+  .chore-list-section {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .member-chore-section {
+    width: 100%;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+@media (max-width: 768px) {
+  .app-container {
+    padding: 10px;
   }
-}
 
-.card {
-  padding: 2em;
-}
+  .app-content {
+    gap: 15px;
+  }
 
-.read-the-docs {
-  color: #888;
+  .member-chore-section {
+    gap: 15px;
+  }
 }
