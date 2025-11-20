@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import "./App.css";
 import AddMember from "./Add-Member-Component/AddMember.jsx";
 import MemberChoreList from "./Member-Chore-List-Component/MemberChoreList.jsx";
-import ChoreList from "./Chore-List-Component/ChoreList.jsx";
+import ChoreList from './Chore-List-Component/ChoreList.jsx';
 import LoginPage from "./Login-Page/LoginPage.jsx";
+import TidyLogo from "./assets/TidyLogo.png";
 
 function AppContent() {
   const [members, setMembers] = useState([]);
@@ -22,6 +24,10 @@ function AppContent() {
     });
   };
 
+  const handleRemoveMember = (memberId) => {
+    setMembers(prev => prev.filter(m => m.id !== memberId));
+  };
+
   const handleUpdateMemberChores = (memberId, updatedChores) => {
     setMembers(prev =>
       prev.map(m =>
@@ -31,14 +37,33 @@ function AppContent() {
   };
 
   return (
-    <>
-      <AddMember onAddMember={handleAddMember} />
-      <ChoreList />
-      <MemberChoreList
-        members={members}
-        onUpdateMemberChores={handleUpdateMemberChores}
-      />
-    </>
+    <div className="app-container">
+      <div className="app-header">
+        {/* logo on the left; replace src with your asset path if needed */}
+        <div className="logo" tabIndex={0} aria-label="TIDY logo">
+          <img src={TidyLogo} alt="TIDY logo" className="logo__img" />
+        </div>
+
+        <AddMember
+          onAddMember={handleAddMember}
+          onRemoveMember={handleRemoveMember}
+          existingMembers={members}
+        />
+      </div>
+
+      <div className="app-content">
+        <div className="chore-list-section">
+          <ChoreList />
+        </div>
+
+        <div className="member-chore-section">
+          <MemberChoreList
+            members={members}
+            onUpdateMemberChores={handleUpdateMemberChores}
+          />
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -51,4 +76,4 @@ export default function App() {
       </Routes>
     </BrowserRouter>
   );
-}
+};

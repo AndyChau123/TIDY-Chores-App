@@ -3,14 +3,10 @@ import "./AddChore.css";
 
 export default function AddChore({ onAdd }) {
   const [title, setTitle] = useState('');
-  const [dueDate, setDueDate] = useState('');
-  const [priority, setPriority] = useState('medium');
   const [error, setError] = useState('');
 
   function reset() {
     setTitle('');
-    setDueDate('');
-    setPriority('medium');
     setError('');
   }
 
@@ -25,8 +21,6 @@ export default function AddChore({ onAdd }) {
     const newChore = {
       id: `chore_${Date.now()}`,
       title: trimmed,
-      dueDate: dueDate || null,
-      priority,
       completed: false,
       createdAt: new Date().toISOString(),
     };
@@ -57,33 +51,6 @@ export default function AddChore({ onAdd }) {
           maxLength={120}
           autoComplete="off"
         />
-      </div>
-
-      <div className="add-chore__row add-chore__meta">
-        <div className="add-chore__meta-item">
-          <label htmlFor="chore-due" className="add-chore__label small">Due</label>
-          <input
-            id="chore-due"
-            className="add-chore__input small"
-            type="date"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-          />
-        </div>
-
-        <div className="add-chore__meta-item">
-          <label htmlFor="chore-priority" className="add-chore__label small">Priority</label>
-          <select
-            id="chore-priority"
-            className="add-chore__select"
-            value={priority}
-            onChange={(e) => setPriority(e.target.value)}
-          >
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-          </select>
-        </div>
       </div>
 
       {error && <div className="add-chore__error" role="alert">{error}</div>}

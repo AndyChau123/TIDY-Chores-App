@@ -2,22 +2,110 @@
   display: flex;
   flex-direction: row;
   gap: 20px;
+  flex-wrap: wrap;
+  width: 100%;
 }
 
 .member-chore-box {
-  position: relative; 
+  flex: 1;
+  min-width: 280px;
+  max-width: 350px;
+  box-sizing: border-box;
 }
 
 .member-chore-box .chore-list-container {
-  position: relative;
-  top: 50px;          
-  left: 0;
-  width: 250px;
-  min-height: 150px;
+  width: 100%;
+  min-height: 200px;
   background: #f7f7f7;
   border: 2px solid #000;
   border-radius: 12px;
   padding: 12px;
-  box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
-  z-index: 10;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.member-chore-box .chore-list-header {
+  margin-bottom: 12px;
+}
+
+.member-chore-box .chore-list-header h2 {
+  margin: 0;
+  font-size: 1.3em;
+  color: #111;
+}
+
+.member-chore-box .chore-list {
+  margin-bottom: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.member-chore-box .chore-list-add {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.member-chore-box .chore-list-add input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.member-chore-box .chore-list-add input:focus {
+  outline: none;
+  border-color: #5b9cff;
+  box-shadow: 0 0 0 3px rgba(100, 150, 255, 0.12);
+}
+
+.member-chore-box .chore-list-add button {
+  padding: 8px 16px;
+  background: linear-gradient(180deg, #2e7dff 0%, #1b63d6 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s;
+  white-space: nowrap;
+}
+
+.member-chore-box .chore-list-add button:hover {
+  transform: translateY(-1px);
+}
+
+.member-chore-box .chore-list-add button:active {
+  transform: translateY(1px);
+}
+
+@media (max-width: 1200px) {
+  .member-chore-box {
+    flex: 1 1 calc(50% - 10px);
+    max-width: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .member-chore-lists {
+    gap: 15px;
+  }
+
+  .member-chore-box {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .member-chore-box .chore-list-add {
+    flex-direction: column;
+  }
+
+  .member-chore-box .chore-list-add button {
+    width: 100%;
+  }
 }
