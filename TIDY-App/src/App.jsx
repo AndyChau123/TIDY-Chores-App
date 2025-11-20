@@ -1,22 +1,22 @@
 import { useState } from "react";
-import "./App.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import AddMember from "./Add-Member-Component/AddMember.jsx";
 import MemberChoreList from "./Member-Chore-List-Component/MemberChoreList.jsx";
-import ChoreList from './Chore-List-Component/ChoreList.jsx';
+import ChoreList from "./Chore-List-Component/ChoreList.jsx";
+import LoginPage from "./Login-Page/LoginPage.jsx";
 
-function App() {
+function AppContent() {
   const [members, setMembers] = useState([]);
 
   const handleAddMember = (newMember) => {
     setMembers(prev => {
       const exists = prev.find(m => m.id === newMember.id);
       if (exists) {
-        // Update existing member's name
         return prev.map(m =>
           m.id === newMember.id ? { ...m, name: newMember.name } : m
         );
       } else {
-        // Add new member if not in the list
         return [...prev, newMember];
       }
     });
@@ -42,4 +42,13 @@ function App() {
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/app" element={<AppContent />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
