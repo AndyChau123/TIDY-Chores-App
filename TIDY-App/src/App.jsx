@@ -1,21 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { loadMembersFromDB } from "./firebaseHelper.js";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import "./App.css";
 import AddMember from "./Add-Member-Component/AddMember.jsx";
 import MemberChoreList from "./Member-Chore-List-Component/MemberChoreList.jsx";
-import ChoreList from './Chore-List-Component/ChoreList.jsx';
+import ChoreList from "./Chore-List-Component/ChoreList.jsx";
 import LoginPage from "./Login-Page/LoginPage.jsx";
 import TidyLogo from "./assets/TidyLogo.png";
 
 function AppContent() {
   const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  // Load members from Firestore when page loads or refreshes
+  useEffect(() => {
+    async function loadMembers() {
+      const storedMembers = await loadMembersFromDB();
+      console.log("Loaded from Firestore:", storedMembers);
+      setMembers(storedMembers);
+      setLoading(false);
+    }
+    loadMembers();
+  }, []);
+
+  // Add or update member in local state
   const handleAddMember = (newMember) => {
-    setMembers(prev => {
-      const exists = prev.find(m => m.id === newMember.id);
+    setMembers((prev) => {
+      const exists = prev.find((m) => m.id === newMember.id);
       if (exists) {
-        return prev.map(m =>
+        return prev.map((m) =>
           m.id === newMember.id ? { ...m, name: newMember.name } : m
         );
       } else {
@@ -24,13 +38,15 @@ function AppContent() {
     });
   };
 
+  // Remove member from state
   const handleRemoveMember = (memberId) => {
-    setMembers(prev => prev.filter(m => m.id !== memberId));
+    setMembers((prev) => prev.filter((m) => m.id !== memberId));
   };
 
+  // Update chores for one member
   const handleUpdateMemberChores = (memberId, updatedChores) => {
-    setMembers(prev =>
-      prev.map(m =>
+    setMembers((prev) =>
+      prev.map((m) =>
         m.id === memberId ? { ...m, chores: updatedChores } : m
       )
     );
@@ -39,7 +55,6 @@ function AppContent() {
   return (
     <div className="app-container">
       <div className="app-header">
-        {/* logo on the left; replace src with your asset path if needed */}
         <div className="logo" tabIndex={0} aria-label="TIDY logo">
           <img src={TidyLogo} alt="TIDY logo" className="logo__img" />
         </div>
@@ -76,4 +91,4 @@ export default function App() {
       </Routes>
     </BrowserRouter>
   );
-};
+}

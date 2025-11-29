@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import "./MemberChoreList.css"; // NEW file
+import "./MemberChoreList.css";
+import { updateChoresInDB } from "../firebaseHelper";
 
 function MemberChoreList({ members, onUpdateMemberChores }) {
   const priorityColors = {
@@ -10,7 +11,7 @@ function MemberChoreList({ members, onUpdateMemberChores }) {
 
   const [inputs, setInputs] = useState({});
 
-  function handleAddChore(memberId) {
+  async function handleAddChore(memberId) {
     const choreTitle = inputs[memberId]?.trim();
     if (!choreTitle) return;
 
@@ -23,23 +24,43 @@ function MemberChoreList({ members, onUpdateMemberChores }) {
 
     const member = members.find((m) => m.id === memberId);
     const updated = [...(member.chores || []), newChore];
+
     onUpdateMemberChores(memberId, updated);
+    try {
+      await updateChoresInDB(memberId, updated);
+    } catch (error) {
+      console.error("Error adding chore to Firestore:", error);
+      alert("Failed to add chore. Check console for details.");
+    }
 
     setInputs({ ...inputs, [memberId]: "" });
   }
 
-  function toggleComplete(memberId, choreId) {
+  async function toggleComplete(memberId, choreId) {
     const member = members.find((m) => m.id === memberId);
     const updated = member.chores.map((c) =>
       c.id === choreId ? { ...c, completed: !c.completed } : c
     );
+
     onUpdateMemberChores(memberId, updated);
+    try {
+      await updateChoresInDB(memberId, updated);
+    } catch (error) {
+      console.error("Error toggling chore in Firestore:", error);
+    }
   }
 
-  function removeChore(memberId, choreId) {
+  async function removeChore(memberId, choreId) {
     const member = members.find((m) => m.id === memberId);
     const updated = member.chores.filter((c) => c.id !== choreId);
+
     onUpdateMemberChores(memberId, updated);
+    try {
+      await updateChoresInDB(memberId, updated);
+    } catch (error) {
+      console.error("Error removing chore from Firestore:", error);
+      alert("Failed to remove chore. Check console for details.");
+    }
   }
 
   return (
@@ -66,16 +87,6 @@ function MemberChoreList({ members, onUpdateMemberChores }) {
                       />
                       <div className="chore-item__content">
                         <div className="chore-item__title">{chore.title}</div>
-                        <div className="chore-item__meta">
-                          <span
-                            className="priority-badge"
-                            style={{
-                              backgroundColor: priorityColors[chore.priority],
-                            }}
-                          >
-                            {chore.priority}
-                          </span>
-                        </div>
                       </div>
                     </label>
                     <button

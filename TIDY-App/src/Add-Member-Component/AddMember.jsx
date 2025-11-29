@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./AddMember.css";
+import { saveMemberToDB, removeMemberFromDB } from "../firebaseHelper";
 
 function AddMember({ onAddMember, onRemoveMember, existingMembers }) {
   const [members, setMembers] = useState([
@@ -20,36 +21,45 @@ function AddMember({ onAddMember, onRemoveMember, existingMembers }) {
     setMembers(updated);
   };
 
-  const saveMemberName = (index) => {
+  const saveMemberName = async (index) => {
     const updated = [...members];
     const name = updated[index].name.trim();
     if (name === "") return;
+
+    const newMember = {
+      id: updated[index].id,
+      name,
+      chores: [],
+    };
 
     updated[index].isEditing = false;
     updated[index].isAdded = true;
     setMembers(updated);
 
-    onAddMember({ id: updated[index].id, name, chores: [] });
+    onAddMember(newMember);
+    try {
+      await saveMemberToDB(newMember);
+    } catch (error) {
+      console.error("Error saving member to Firestore:", error);
+      alert("Failed to save member. Check console for details.");
+    }
   };
 
   const cancelEdit = (index) => {
     const updated = [...members];
-    // If member was already added, just close the edit mode
     if (updated[index].isAdded) {
       updated[index].isEditing = false;
     } else {
-      // If member was never added, reset everything
       updated[index].name = "";
       updated[index].isEditing = false;
     }
     setMembers(updated);
   };
 
-  const removeMember = (index) => {
+  const removeMember = async (index) => {
     const updated = [...members];
     const memberId = updated[index].id;
 
-    // Reset the member slot
     updated[index] = {
       id: memberId,
       name: "",
@@ -58,12 +68,17 @@ function AddMember({ onAddMember, onRemoveMember, existingMembers }) {
     };
     setMembers(updated);
 
-    // Notify parent to remove from the member list
     onRemoveMember(memberId);
+    try {
+      await removeMemberFromDB(memberId);
+    } catch (error) {
+      console.error("Error removing member from Firestore:", error);
+      alert("Failed to remove member. Check console for details.");
+    }
   };
 
   const isMemberInList = (memberId) => {
-    return existingMembers.some(m => m.id === memberId);
+    return existingMembers.some((m) => m.id === memberId);
   };
 
   return (
@@ -80,17 +95,23 @@ function AddMember({ onAddMember, onRemoveMember, existingMembers }) {
                 className="NameInput"
               />
               <div className="button-group">
-                <button className="SaveButton" onClick={() => saveMemberName(index)}>
+                <button
+                  className="SaveButton"
+                  onClick={() => saveMemberName(index)}
+                >
                   Save
                 </button>
-                <button className="CancelEditButton" onClick={() => cancelEdit(index)}>
+                <button
+                  className="CancelEditButton"
+                  onClick={() => cancelEdit(index)}
+                >
                   Cancel
                 </button>
               </div>
             </div>
           ) : (
             <>
-              <div style={{ position: 'relative' }}>
+              <div style={{ position: "relative" }}>
                 <h3
                   className={`AddUser${member.id}`}
                   onClick={() => editMemberName(index)}
