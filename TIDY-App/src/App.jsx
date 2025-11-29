@@ -29,11 +29,13 @@ function AppContent() {
     setMembers((prev) => {
       const exists = prev.find((m) => m.id === newMember.id);
       if (exists) {
+        // When updating member name, preserve existing chores
         return prev.map((m) =>
-          m.id === newMember.id ? { ...m, name: newMember.name } : m
+          m.id === newMember.id ? { ...m, name: newMember.name, chores: m.chores || [] } : m
         );
       } else {
-        return [...prev, newMember];
+        // When adding new member, use their chores from Firebase or empty array
+        return [...prev, { ...newMember, chores: newMember.chores || [] }];
       }
     });
   };
