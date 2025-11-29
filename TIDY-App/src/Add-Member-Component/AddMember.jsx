@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./AddMember.css";
 import { saveMemberToDB, removeMemberFromDB } from "../firebaseHelper";
 
@@ -8,6 +8,24 @@ function AddMember({ onAddMember, onRemoveMember, existingMembers }) {
     { id: 3, name: "", isEditing: false, isAdded: false },
     { id: 4, name: "", isEditing: false, isAdded: false },
   ]);
+
+  // Sync local state with existingMembers from Firebase, modify users accordingly
+  useEffect(() => {
+    setMembers((prev) => {
+      return prev.map((member) => {
+        const existingMember = existingMembers.find((m) => m.id === member.id);
+        if (existingMember) {
+          return {
+            id: member.id,
+            name: existingMember.name,
+            isEditing: false,
+            isAdded: true,
+          };
+        }
+        return member;
+      });
+    });
+  }, [existingMembers]);
 
   const editMemberName = (index) => {
     const updated = [...members];
@@ -26,10 +44,12 @@ function AddMember({ onAddMember, onRemoveMember, existingMembers }) {
     const name = updated[index].name.trim();
     if (name === "") return;
 
+    // Preserves chores for updating an existing added member's name
+    const existingMember = existingMembers.find((m) => m.id === updated[index].id);
     const newMember = {
       id: updated[index].id,
       name,
-      chores: [],
+      chores: existingMember?.chores || [],
     };
 
     updated[index].isEditing = false;
@@ -48,6 +68,11 @@ function AddMember({ onAddMember, onRemoveMember, existingMembers }) {
   const cancelEdit = (index) => {
     const updated = [...members];
     if (updated[index].isAdded) {
+      // If member exists, restore their name from existingMembers
+      const existingMember = existingMembers.find((m) => m.id === updated[index].id);
+      if (existingMember) {
+        updated[index].name = existingMember.name;
+      }
       updated[index].isEditing = false;
     } else {
       updated[index].name = "";
