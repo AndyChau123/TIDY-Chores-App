@@ -1,16 +1,19 @@
-import { db } from './firebase';
+import { db } from "./firebase";
 import {
   doc,
   setDoc,
   deleteDoc,
   updateDoc,
   getDocs,
+  getDoc,
   collection,
 } from "firebase/firestore";
 
 // Save or update a member
 export async function saveMemberToDB(member) {
-  await setDoc(doc(db, "members", member.id.toString()), member, { merge: true });
+  await setDoc(doc(db, "members", member.id.toString()), member, {
+    merge: true,
+  });
 }
 
 // Remove a member
@@ -29,4 +32,24 @@ export async function loadMembersFromDB() {
   const list = [];
   snapshot.forEach((doc) => list.push(doc.data()));
   return list;
+}
+
+export async function loadMainChores() {
+  const ref = doc(db, "main", "chores");
+  const snap = await getDoc(ref);
+
+  if (snap.exists()) {
+    return snap.data().chores || [];
+  }
+  return []; // default if no chores yet
+}
+
+export async function saveMainChores(chores) {
+  const ref = doc(db, "main", "chores");
+  await setDoc(ref, { chores }, { merge: true });
+}
+
+export async function updateMainChores(chores) {
+  const ref = doc(db, "main", "chores");
+  await updateDoc(ref, { chores });
 }
