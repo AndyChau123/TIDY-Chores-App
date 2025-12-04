@@ -1,0 +1,66 @@
+.currency-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+  border: 2px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.currency-display:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: #667eea;
+}
+
+.currency-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.currency-amount {
+  font-size: 18px;
+  color: #667eea;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .currency-display {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+
+  .currency-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .currency-amount {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .currency-display {
+    padding: 5px 10px;
+    gap: 6px;
+  }
+
+  .currency-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .currency-amount {
+    font-size: 14px;
+  }
+}

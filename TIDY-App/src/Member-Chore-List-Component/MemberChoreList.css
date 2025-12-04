@@ -43,17 +43,22 @@
 .member-chore-box .chore-list-add {
   display: flex;
   gap: 8px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  width: 100%;
+  align-items: center;
 }
 
 .member-chore-box .chore-list-add input {
   flex: 1;
+  min-width: 0;
   padding: 8px 12px;
+    /* ← match button height */
   border: 1px solid #e0e0e0;
   border-radius: 8px;
+  /* ← MATCH button rounding */
   font-size: 14px;
+  box-sizing: border-box;
+  height: 100%;
+    /* ← makes it align properly */
 }
 
 .member-chore-box .chore-list-add input:focus {
@@ -63,14 +68,12 @@
 }
 
 .member-chore-box .chore-list-add button {
-  padding: 8px 16px;
   background: linear-gradient(180deg, #2e7dff 0%, #1b63d6 100%);
   color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.1s;
+  flex-shrink: 1;
+  height: auto;
+  padding: 8px 14px;
+  box-sizing: border-box;
   white-space: nowrap;
 }
 
