@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LoginPage.css";
 
+import TidyLogo from "../assets/TidyLogo.png";
+
 function LoginPage() {
   const [loginCode, setLoginCode] = useState("");
   const [error, setError] = useState("");
@@ -21,6 +23,9 @@ function LoginPage() {
 
   return (
     <div className="login-container">
+      <div className="logo-container">
+        <img src={TidyLogo} alt="Tidy Logo" />
+      </div>
       <div className="login-box">
         <h2>Welcome</h2>
         <form onSubmit={handleLogin}>
