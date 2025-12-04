@@ -19,6 +19,7 @@
 .AddUser2,
 .AddUser3,
 .AddUser4 {
+  color: white;
   background-color: #000000;
   padding: 10px 15px;
   border-radius: 8px;
