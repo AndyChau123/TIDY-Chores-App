@@ -15,7 +15,7 @@
 
 .app-header {
   display: flex;
-  justify-content: space-between; /* changed to place logo left and controls right */
+  justify-content: space-between;
   align-items: center;
   width: 100%;
   margin-bottom: 20px;
@@ -47,7 +47,7 @@
 
 /* keyboard focus visible for accessibility */
 .logo:focus {
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.18);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
   border-radius: 8px;
 }
 
@@ -58,21 +58,27 @@
   width: 100%;
   flex-wrap: wrap;
   align-items: flex-start;
+  justify-content: center;
 }
 
 .chore-list-section {
-  flex: 0 0 auto;
-  min-width: 300px;
-  max-width: 400px;
+  flex: 1 1 350px;
+  /* NEW — grows + shrinks + minimum width */
+  max-width: 500px;
+  /* optional: widen if you want */
 }
 
 .member-chore-section {
-  flex: 1;
+  flex: 2 1 600px;
+  /* NEW — takes more space but is flexible */
   min-width: 0;
   display: flex;
   flex-direction: row;
   gap: 20px;
   flex-wrap: wrap;
+  justify-content: center;
+  /* NEW — centers cards inside */
+  align-content: center;
 }
 
 @media (max-width: 1200px) {
@@ -87,6 +93,7 @@
 
   .member-chore-section {
     width: 100%;
+    justify-content: space-evenly;
   }
 }
 
@@ -101,5 +108,6 @@
 
   .member-chore-section {
     gap: 15px;
+    justify-content: space-evenly;
   }
 }

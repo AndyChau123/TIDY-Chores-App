@@ -23,7 +23,7 @@ function MemberChoreList({ members, onUpdateMemberChores }) {
     };
 
     const member = members.find((m) => m.id === memberId);
-    const updated = [...(member.chores || []), newChore];
+    const updated = [newChore, ...(member.chores || [])];
 
     onUpdateMemberChores(memberId, updated);
     try {
@@ -72,6 +72,18 @@ function MemberChoreList({ members, onUpdateMemberChores }) {
               <h2>{member.name || `Member ${member.id}`}</h2>
             </div>
 
+            <div className="chore-list-add">
+              <input
+                type="text"
+                placeholder="Add chore"
+                value={inputs[member.id] || ""}
+                onChange={(e) =>
+                  setInputs({ ...inputs, [member.id]: e.target.value })
+                }
+              />
+              <button onClick={() => handleAddChore(member.id)}>Add</button>
+            </div>
+
             <ul className="chore-list">
               {(member.chores || []).map((chore) => (
                 <li
@@ -99,18 +111,6 @@ function MemberChoreList({ members, onUpdateMemberChores }) {
                 </li>
               ))}
             </ul>
-
-            <div className="chore-list-add">
-              <input
-                type="text"
-                placeholder="Add chore"
-                value={inputs[member.id] || ""}
-                onChange={(e) =>
-                  setInputs({ ...inputs, [member.id]: e.target.value })
-                }
-              />
-              <button onClick={() => handleAddChore(member.id)}>Add</button>
-            </div>
           </div>
         </div>
       ))}

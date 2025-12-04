@@ -7,6 +7,7 @@ import AddMember from "./Add-Member-Component/AddMember.jsx";
 import MemberChoreList from "./Member-Chore-List-Component/MemberChoreList.jsx";
 import ChoreList from "./Chore-List-Component/ChoreList.jsx";
 import LoginPage from "./Login-Page/LoginPage.jsx";
+import Currency from "./Currency-Component/Currency.jsx";
 import TidyLogo from "./assets/TidyLogo.png";
 
 function AppContent() {
@@ -66,6 +67,7 @@ function AppContent() {
           onRemoveMember={handleRemoveMember}
           existingMembers={members}
         />
+        <Currency userId="current-user-id" />
       </div>
 
       <div className="app-content">

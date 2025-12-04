@@ -162,8 +162,8 @@ function AddMember({ onAddMember, onRemoveMember, existingMembers }) {
                   className={`UserButton${member.id}`}
                   onClick={() => editMemberName(index)}
                 >
-                  Add Member
-                  <br />+
+                  Add Member +
+                  <br />
                 </button>
               )}
             </>
