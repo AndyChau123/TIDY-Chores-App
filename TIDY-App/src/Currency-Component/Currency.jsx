@@ -1,50 +1,43 @@
-import React, { useState, useEffect } from "react";
-import "./Currency.css";
+import React from 'react';
+import './Currency.css'; // Your existing CSS file
 
-// Import your currency icon here when you create it
-// import CurrencyIcon from "../assets/CurrencyIcon.png";
+// ============================================================================
+// UPDATED CURRENCY COMPONENT
+// This component now receives currency data as props instead of fetching it
+// ============================================================================
 
-function Currency({ userId }) {
-  const [currencyAmount, setCurrencyAmount] = useState(0);
-
-  // Load currency from Firebase when component mounts
-  useEffect(() => {
-    // TODO: Replace this with your Firebase call
-    // async function loadCurrency() {
-    //   const amount = await getCurrencyFromDB(userId);
-    //   setCurrencyAmount(amount);
-    // }
-    // loadCurrency();
-
-    // Temporary: Set initial currency for testing
-    setCurrencyAmount(1250);
-  }, [userId]);
-
-  // Function to update currency (you'll connect this to Firebase)
-  const updateCurrency = (newAmount) => {
-    setCurrencyAmount(newAmount);
-    // TODO: Save to Firebase
-    // await saveCurrencyToDB(userId, newAmount);
-  };
+function Currency({ userId, balance, loading, onRefresh }) {
+  // Show loading state while currency is being fetched
+  if (loading) {
+    return (
+      <div className="currency-container">
+        <div className="currency-display loading">
+          <span className="currency-icon">🪙</span>
+          <span className="currency-amount">--</span>
+          <span className="currency-label">Coins</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="currency-display">
-      {/* Replace this div with your currency icon image when ready */}
-      <div className="currency-icon" style={{
-        backgroundColor: '#FFD700',
-        borderRadius: '50%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '14px',
-        fontWeight: 'bold'
-      }}>
-        $
+    <div className="currency-container">
+      <div className="currency-display">
+        <span className="currency-icon">🪙</span>
+        <span className="currency-amount">{balance || 0}</span>
+        <span className="currency-label">Coins</span>
       </div>
-      {/* Uncomment when you have your icon:
-      <img src={CurrencyIcon} alt="Currency" className="currency-icon" />
-      */}
-      <span className="currency-amount">{currencyAmount.toLocaleString()}</span>
+
+      {/* Optional: Add a refresh button */}
+      {onRefresh && (
+        <button
+          onClick={onRefresh}
+          className="currency-refresh-btn"
+          title="Refresh balance"
+        >
+          ↻
+        </button>
+      )}
     </div>
   );
 }

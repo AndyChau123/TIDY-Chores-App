@@ -7,8 +7,38 @@ import {
   updateMainChores,
 } from "../firebaseHelper";
 
-function ChoreList() {
-  const [chores, setChores] = useState([]);  
+// Import quest and currency functions
+import {
+  addCurrency,
+  onChoreCompleted
+} from '../questCurrencyHelper';
+
+// ============================================================================
+// HELPER FUNCTION - Properly toggles chore with timestamp and completedBefore flag
+// ============================================================================
+function toggleChoreCompletion(chore) {
+  if (chore.completed) {
+    // Unchecking - remove completed status and timestamp
+    // BUT keep completedBefore flag so it won't count again
+    return {
+      ...chore,
+      completed: false,
+      completedAt: null  // Clear the timestamp
+      // completedBefore stays TRUE if it was ever completed before
+    };
+  } else {
+    // Checking - mark as complete with NEW unique timestamp
+    return {
+      ...chore,
+      completed: true,
+      completedAt: new Date().toISOString(),  // Add unique timestamp
+      completedBefore: true  // Mark that this chore has been completed at least once
+    };
+  }
+}
+
+function ChoreList({ userId = "current-user-id", onQuestUpdate }) {
+  const [chores, setChores] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,18 +57,64 @@ function ChoreList() {
 
   // Add a chore
   async function handleAdd(newChore) {
-    const updated = [newChore, ...chores];
+    // Ensure new chore has completedAt and completedBefore fields initialized
+    const choreWithTimestamp = {
+      ...newChore,
+      completedAt: null,
+      completedBefore: false  // Initialize as never completed
+    };
+
+    const updated = [choreWithTimestamp, ...chores];
     setChores(updated);
     await saveMainChores(updated);
   }
 
-  // Toggle complete
+  // ============================================================================
+  // FIXED: Toggle complete with timestamp tracking and quest integration
+  // ============================================================================
   async function toggleComplete(id) {
+    // Find the old chore to check completedBefore status
+    const oldChore = chores.find(c => c.id === id);
+
+    // Use helper function to properly toggle with timestamp
     const updated = chores.map((c) =>
-      c.id === id ? { ...c, completed: !c.completed } : c
+      c.id === id ? toggleChoreCompletion(c) : c
     );
+
+    // Update local state FIRST for responsive UI
     setChores(updated);
+
+    // Save to Firebase
     await updateMainChores(updated);
+
+    // Check if this is a FIRST-TIME completion
+    const newChore = updated.find(c => c.id === id);
+    const isFirstTimeCompletion =
+      newChore.completed === true &&
+      newChore.completedBefore === true &&
+      oldChore?.completedBefore !== true;
+
+    if (isFirstTimeCompletion) {
+      console.log(`First-time completion detected: ${newChore.title}`);
+
+      try {
+        // Award coins (50 per chore)
+        await addCurrency(userId, 50);
+
+        // Update quest progress
+        await onChoreCompleted(userId);
+
+        // Notify parent to refresh quests/currency if callback provided
+        if (onQuestUpdate) {
+          onQuestUpdate();
+        }
+
+        // Show success message
+        alert(`✅ Chore completed!\n+50 coins earned!`);
+      } catch (error) {
+        console.error("Error processing chore completion rewards:", error);
+      }
+    }
   }
 
   // Remove a chore
@@ -72,7 +148,20 @@ function ChoreList() {
                   checked={chore.completed}
                   onChange={() => toggleComplete(chore.id)}
                 />
-                <div className="chore-item__title">{chore.title}</div>
+                <div className="chore-item__content">
+                  <div className="chore-item__title">
+                    {chore.title}
+                    {chore.completedBefore && !chore.completed && (
+                      <small style={{
+                        marginLeft: '8px',
+                        color: '#6b7280',
+                        fontSize: '11px'
+                      }}>
+                        (previously completed)
+                      </small>
+                    )}
+                  </div>
+                </div>
               </label>
 
               <button
