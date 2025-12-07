@@ -9,14 +9,14 @@ import ChoreList from "./Chore-List-Component/ChoreList.jsx";
 import LoginPage from "./Login-Page/LoginPage.jsx";
 import Currency from "./Currency-Component/Currency.jsx";
 import TidyLogo from "./assets/TidyLogo.png";
-import {
-  getUserCurrency,
-  getUserQuests,
-  claimQuestReward,
-  initializeDailyQuests,
-  initializeWeeklyQuests,
-  getClaimableQuests
-} from './questCurrencyHelper';
+// import {
+//   getUserCurrency,
+//   getUserQuests,
+//   claimQuestReward,
+//   initializeDailyQuests,
+//   initializeWeeklyQuests,
+//   getClaimableQuests
+// } from './questCurrencyHelper';
 
 
 // Import the modal components from the artifact
