@@ -8,6 +8,7 @@ import MemberChoreList from "./Member-Chore-List-Component/MemberChoreList.jsx";
 import ChoreList from "./Chore-List-Component/ChoreList.jsx";
 import LoginPage from "./Login-Page/LoginPage.jsx";
 import Currency from "./Currency-Component/Currency.jsx";
+import Decorations from "./Decorations-Component/Decorations.jsx";
 import TidyLogo from "./assets/TidyLogo.png";
 
 // Import quest and currency functions
@@ -21,6 +22,9 @@ import {
   addCurrency,
   onChoreCompleted
 } from './questCurrencyHelper';
+
+// Import decoration functions
+import { getUserDecorations } from './decorationHelper';
 
 // Import the modal components
 import {
@@ -48,6 +52,11 @@ function AppContent() {
   const [quests, setQuests] = useState([]);
   const [questsLoading, setQuestsLoading] = useState(true);
   const [claimableCount, setClaimableCount] = useState(0);
+
+  // ============================================================================
+  // DECORATION STATE
+  // ============================================================================
+  const [activeDecoration, setActiveDecoration] = useState(null);
 
   // ============================================================================
   // MODAL STATE MANAGEMENT
@@ -92,6 +101,10 @@ function AppContent() {
         const claimable = await getClaimableQuests(userId);
         setClaimableCount(claimable.length);
 
+        // Load active decoration
+        const decorations = await getUserDecorations(userId);
+        setActiveDecoration(decorations.active);
+
         setQuestsLoading(false);
       } catch (error) {
         console.error("Error initializing user data:", error);
@@ -130,6 +143,13 @@ function AppContent() {
     } catch (error) {
       console.error("Error refreshing quests:", error);
     }
+  }
+
+  // ============================================================================
+  // HANDLE DECORATION CHANGE
+  // ============================================================================
+  function handleDecorationChange(decorationId) {
+    setActiveDecoration(decorationId);
   }
 
   // ============================================================================
@@ -256,6 +276,12 @@ function AppContent() {
 
   return (
     <div className="app-container">
+      {/* ============================================================================
+          DECORATIONS OVERLAY
+          Renders the active decoration on top of everything
+          ============================================================================ */}
+      <Decorations activeDecoration={activeDecoration} />
+
       <div className="app-header">
         <div className="logo" tabIndex={0} aria-label="TIDY logo">
           <img src={TidyLogo} alt="TIDY logo" className="logo__img" />
@@ -315,8 +341,8 @@ function AppContent() {
           <ChoreList
             userId={userId}
             onQuestUpdate={() => {
-            refreshQuests();
-            refreshCurrency();
+              refreshQuests();
+              refreshCurrency();
             }}
           />
         </div>
@@ -344,6 +370,7 @@ function AppContent() {
           userId={userId}
           currency={currency}
           onPurchase={refreshCurrency}
+          onDecorationChange={handleDecorationChange}
         />
       </Modal>
 

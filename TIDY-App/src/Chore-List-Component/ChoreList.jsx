@@ -5,6 +5,8 @@ import {
   loadMainChores,
   saveMainChores,
   updateMainChores,
+  getUserName,
+  saveUserName,
 } from "../firebaseHelper";
 
 // Import quest and currency functions
@@ -41,19 +43,67 @@ function ChoreList({ userId = "current-user-id", onQuestUpdate }) {
   const [chores, setChores] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // ============================================================================
+  // USER NAME STATE
+  // ============================================================================
+  const [userName, setUserName] = useState("Chores");
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+
   useEffect(() => {
     async function load() {
       try {
+        // Load chores
         const stored = await loadMainChores();
         setChores(stored);
+
+        // Load user name
+        const name = await getUserName(userId);
+        if (name) {
+          setUserName(name);
+        }
       } catch (error) {
-        console.error("Error loading chores from Firestore:", error);
+        console.error("Error loading data from Firestore:", error);
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, []);
+  }, [userId]);
+
+  // ============================================================================
+  // NAME EDITING FUNCTIONS
+  // ============================================================================
+  function handleNameClick() {
+    setNameInput(userName === "Chores" ? "" : userName);
+    setIsEditingName(true);
+  }
+
+  async function handleNameSave() {
+    const trimmedName = nameInput.trim();
+    const newName = trimmedName || "Chores";
+
+    setUserName(newName);
+    setIsEditingName(false);
+
+    try {
+      await saveUserName(userId, newName);
+    } catch (error) {
+      console.error("Error saving user name:", error);
+    }
+  }
+
+  function handleNameKeyPress(e) {
+    if (e.key === 'Enter') {
+      handleNameSave();
+    } else if (e.key === 'Escape') {
+      setIsEditingName(false);
+    }
+  }
+
+  // ============================================================================
+  // CHORE FUNCTIONS
+  // ============================================================================
 
   // Add a chore
   async function handleAdd(newChore) {
@@ -69,9 +119,7 @@ function ChoreList({ userId = "current-user-id", onQuestUpdate }) {
     await saveMainChores(updated);
   }
 
-  // ============================================================================
-  // FIXED: Toggle complete with timestamp tracking and quest integration
-  // ============================================================================
+  // Toggle complete with timestamp tracking and quest integration
   async function toggleComplete(id) {
     // Find the old chore to check completedBefore status
     const oldChore = chores.find(c => c.id === id);
@@ -98,9 +146,6 @@ function ChoreList({ userId = "current-user-id", onQuestUpdate }) {
       console.log(`First-time completion detected: ${newChore.title}`);
 
       try {
-        // Award coins (50 per chore)
-        await addCurrency(userId, 50);
-
         // Update quest progress
         await onChoreCompleted(userId);
 
@@ -110,7 +155,7 @@ function ChoreList({ userId = "current-user-id", onQuestUpdate }) {
         }
 
         // Show success message
-        alert(`✅ Chore completed!\n+50 coins earned!`);
+        alert(`✅ Chore completed!`);
       } catch (error) {
         console.error("Error processing chore completion rewards:", error);
       }
@@ -129,7 +174,41 @@ function ChoreList({ userId = "current-user-id", onQuestUpdate }) {
   return (
     <div className="chore-list-container">
       <div className="chore-list-header">
-        <h2>Chores</h2>
+        {isEditingName ? (
+          <input
+            type="text"
+            className="name-edit-input"
+            value={nameInput}
+            onChange={(e) => setNameInput(e.target.value)}
+            onBlur={handleNameSave}
+            onKeyDown={handleNameKeyPress}
+            autoFocus
+            placeholder="Enter your name"
+            style={{
+              fontSize: '1.5rem',
+              fontWeight: 'bold',
+              border: '2px solid #3b82f6',
+              borderRadius: '8px',
+              padding: '4px 8px',
+              outline: 'none',
+              width: '100%',
+              maxWidth: '200px'
+            }}
+          />
+        ) : (
+          <h2
+            onClick={handleNameClick}
+            style={{
+              cursor: 'pointer',
+              transition: 'color 0.2s'
+            }}
+            title="Click to edit name"
+            onMouseEnter={(e) => e.target.style.color = '#3b82f6'}
+            onMouseLeave={(e) => e.target.style.color = ''}
+          >
+            {userName === "Chores" ? "Chores" : `${userName}`}
+          </h2>
+        )}
       </div>
 
       <AddChore onAdd={handleAdd} />

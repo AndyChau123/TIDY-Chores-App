@@ -11,6 +11,49 @@ import {
 
 import { onChoreCompleted, addCurrency } from "./questCurrencyHelper";
 
+// ============================================================================
+// USER NAME FUNCTIONS
+// ============================================================================
+
+/**
+ * Get user's display name
+ * @param {string} userId - The user's ID
+ * @returns {Promise<string|null>} The user's name or null
+ */
+export async function getUserName(userId) {
+  try {
+    const userRef = doc(db, "users", userId);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+      return userSnap.data().displayName || null;
+    }
+    return null;
+  } catch (error) {
+    console.error("Error getting user name:", error);
+    return null;
+  }
+}
+
+/**
+ * Save user's display name
+ * @param {string} userId - The user's ID
+ * @param {string} name - The name to save
+ */
+export async function saveUserName(userId, name) {
+  try {
+    const userRef = doc(db, "users", userId);
+    await setDoc(userRef, { displayName: name }, { merge: true });
+  } catch (error) {
+    console.error("Error saving user name:", error);
+    throw error;
+  }
+}
+
+// ============================================================================
+// MEMBER FUNCTIONS
+// ============================================================================
+
 // Save or update a member
 export async function saveMemberToDB(member) {
   await setDoc(doc(db, "members", member.id.toString()), member, {
@@ -44,7 +87,7 @@ export async function updateChoresInDB(memberId, chores, userId = null) {
   }
 }
 
-// Compelete Chore
+// Complete Chore
 export async function completeChore(memberId, choreId, userId, currencyReward = 10) {
   try {
     // Get the member's current chores
@@ -94,6 +137,10 @@ export async function loadMembersFromDB() {
   snapshot.forEach((doc) => list.push(doc.data()));
   return list;
 }
+
+// ============================================================================
+// MAIN CHORES FUNCTIONS
+// ============================================================================
 
 export async function loadMainChores() {
   const ref = doc(db, "main", "chores");
