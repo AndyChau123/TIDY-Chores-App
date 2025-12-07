@@ -1,0 +1,135 @@
+/* ============================================================================
+   DECORATIONS CONTAINER
+   ============================================================================ */
+.decorations-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+/* ============================================================================
+   HALLOWEEN DECORATION
+   ============================================================================ */
+.halloween-decoration {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+}
+
+.pumpkin {
+  position: absolute;
+  top: -50px;
+  animation: pumpkinFall linear infinite;
+  text-shadow: 0 0 5px rgba(255, 120, 0, 0.6), 0 0 10px rgba(255, 80, 0, 0.4);
+}
+
+@keyframes pumpkinFall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+  }
+}
+
+/* ============================================================================
+   CHRISTMAS LIGHTS DECORATION
+   ============================================================================ */
+.christmas-lights-decoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.lights-string {
+  display: flex;
+  justify-content: space-around;
+  padding: 5px 10px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, transparent 100%);
+}
+
+.light-bulb {
+  width: 12px;
+  height: 18px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  animation: lightGlow 1s ease-in-out infinite alternate;
+  box-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+  position: relative;
+}
+
+.light-bulb::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background: #333;
+  border-radius: 2px;
+}
+
+@keyframes lightGlow {
+  0% {
+    opacity: 0.6;
+    filter: brightness(0.8);
+  }
+
+  100% {
+    opacity: 1;
+    filter: brightness(1.3);
+  }
+}
+
+/* ============================================================================
+   SNOWFLAKES DECORATION
+   ============================================================================ */
+.snowflakes-decoration {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.snowflake {
+  position: absolute;
+  top: -50px;
+  color: #fff;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8), 0 0 10px rgba(200, 220, 255, 0.5);
+  animation: snowfall linear infinite;
+}
+
+@keyframes snowfall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+  }
+}
+
+/* ============================================================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================================================ */
+@media (max-width: 768px) {
+  .light-bulb {
+    width: 8px;
+    height: 12px;
+  }
+
+  .light-bulb::before {
+    width: 4px;
+    height: 4px;
+    top: -3px;
+  }
+}

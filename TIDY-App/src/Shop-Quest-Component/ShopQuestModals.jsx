@@ -1,8 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { deductCurrency } from '../questCurrencyHelper';
+import React, { useState, useEffect } from "react";
+import {
+  DECORATIONS,
+  getUserDecorations,
+  purchaseDecoration,
+  setActiveDecoration,
+  getShopDecorations
+} from "../decorationHelper";
+import { deductCurrency } from "../questCurrencyHelper";
 
 // ============================================================================
-// REUSABLE MODAL COMPONENT
+// MODAL COMPONENT
+// Reusable modal wrapper
 // ============================================================================
 export function Modal({ isOpen, onClose, title, children }) {
   if (!isOpen) return null;
@@ -17,541 +25,499 @@ export function Modal({ isOpen, onClose, title, children }) {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 1000,
-        animation: 'fadeIn 0.3s ease-out'
+        zIndex: 10000
       }}
     >
       <div
         className="modal-content"
         onClick={(e) => e.stopPropagation()}
         style={{
-          backgroundColor: '#1e293b',
+          backgroundColor: 'white',
           borderRadius: '16px',
+          padding: '24px',
+          maxWidth: '500px',
           width: '90%',
-          maxWidth: '900px',
-          maxHeight: '85vh',
+          maxHeight: '80vh',
           overflow: 'auto',
-          position: 'relative',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-          animation: 'zoomIn 0.3s ease-out',
-          border: '2px solid #334155'
+          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+          color: '#000000'
         }}
       >
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '24px 32px',
-          borderBottom: '2px solid #334155',
-          position: 'sticky',
-          top: 0,
-          backgroundColor: '#1e293b',
-          zIndex: 10
+          marginBottom: '20px',
+          borderBottom: '2px solid #e5e7eb',
+          paddingBottom: '12px'
         }}>
-          <h2 style={{
-            margin: 0,
-            fontSize: '28px',
-            fontWeight: 'bold',
-            color: '#f1f5f9',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px'
-          }}>
-            {title}
-          </h2>
-
+          <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#000000' }}>{title}</h2>
           <button
             onClick={onClose}
             style={{
-              background: '#ef4444',
+              background: 'none',
               border: 'none',
-              borderRadius: '8px',
-              width: '40px',
-              height: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              color: 'white',
               fontSize: '24px',
-              fontWeight: 'bold'
+              cursor: 'pointer',
+              color: '#6b7280',
+              padding: '4px 8px',
+              borderRadius: '8px'
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#dc2626';
-              e.currentTarget.style.transform = 'scale(1.1)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#ef4444';
-              e.currentTarget.style.transform = 'scale(1)';
-            }}
-            aria-label="Close modal"
           >
-            ✕
+            ×
           </button>
         </div>
-
-        <div style={{ padding: '32px' }}>
-          {children}
-        </div>
+        {children}
       </div>
-
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes zoomIn {
-          from { opacity: 0; transform: scale(0.9); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        .modal-content::-webkit-scrollbar { width: 12px; }
-        .modal-content::-webkit-scrollbar-track { background: #0f172a; border-radius: 8px; }
-        .modal-content::-webkit-scrollbar-thumb { background: #475569; border-radius: 8px; }
-        .modal-content::-webkit-scrollbar-thumb:hover { background: #64748b; }
-      `}</style>
     </div>
   );
 }
 
 // ============================================================================
-// SHOP MODAL CONTENT - CONNECTED TO FIREBASE
+// SHOP BUTTON
 // ============================================================================
-export function ShopContent({ userId, currency, onPurchase, coinIcon }) {
-  const [purchasing, setPurchasing] = useState(null);
+export function ShopButton({ onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        padding: '10px 20px',
+        backgroundColor: '#8b5cf6',
+        color: 'white',
+        border: 'none',
+        borderRadius: '12px',
+        cursor: 'pointer',
+        fontSize: '16px',
+        fontWeight: 'bold',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)',
+        transition: 'transform 0.2s, box-shadow 0.2s'
+      }}
+      onMouseEnter={(e) => {
+        e.target.style.transform = 'translateY(-2px)';
+        e.target.style.boxShadow = '0 6px 16px rgba(139, 92, 246, 0.4)';
+      }}
+      onMouseLeave={(e) => {
+        e.target.style.transform = 'translateY(0)';
+        e.target.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.3)';
+      }}
+    >
+      🛒 Shop
+    </button>
+  );
+}
 
-  // Sample shop items - Replace with Firebase data later
-  const shopItems = [
-    { id: 1, name: 'Power Up', description: 'Complete chores 2x faster', price: 100, emoji: '⚡' },
-    { id: 2, name: 'Gold Star', description: 'Show off your achievement', price: 200, emoji: '⭐' },
-    { id: 3, name: 'Time Skip', description: 'Skip waiting time', price: 300, emoji: '⏰' },
-    { id: 4, name: 'Double Coins', description: 'Earn 2x coins for 1 day', price: 400, emoji: '💰' },
-    { id: 5, name: 'Avatar Frame', description: 'Unique profile frame', price: 500, emoji: '🖼️' },
-    { id: 6, name: 'Mystery Box', description: 'Random reward', price: 600, emoji: '🎁' },
-  ];
+// ============================================================================
+// QUESTS BUTTON
+// ============================================================================
+export function QuestsButton({ onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        padding: '10px 20px',
+        backgroundColor: '#f59e0b',
+        color: 'white',
+        border: 'none',
+        borderRadius: '12px',
+        cursor: 'pointer',
+        fontSize: '16px',
+        fontWeight: 'bold',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
+        transition: 'transform 0.2s, box-shadow 0.2s'
+      }}
+      onMouseEnter={(e) => {
+        e.target.style.transform = 'translateY(-2px)';
+        e.target.style.boxShadow = '0 6px 16px rgba(245, 158, 11, 0.4)';
+      }}
+      onMouseLeave={(e) => {
+        e.target.style.transform = 'translateY(0)';
+        e.target.style.boxShadow = '0 4px 12px rgba(245, 158, 11, 0.3)';
+      }}
+    >
+      📜 Quests
+    </button>
+  );
+}
 
-  async function handlePurchase(item) {
-    if (purchasing) return; // Prevent double-click
+// ============================================================================
+// SHOP CONTENT
+// Displays decoration items for purchase and application
+// ============================================================================
+export function ShopContent({ userId, currency, onPurchase, onDecorationChange }) {
+  const [decorations, setDecorations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("decorations");
 
-    setPurchasing(item.id);
+  useEffect(() => {
+    loadDecorations();
+  }, [userId]);
+
+  async function loadDecorations() {
+    setLoading(true);
+    try {
+      const shopItems = await getShopDecorations(userId);
+      setDecorations(shopItems);
+    } catch (error) {
+      console.error("Error loading decorations:", error);
+    }
+    setLoading(false);
+  }
+
+  async function handlePurchase(decoration) {
+    if (currency < decoration.price) {
+      alert("❌ Not enough coins!");
+      return;
+    }
 
     try {
-      const result = await deductCurrency(userId, item.price);
+      // Deduct currency
+      const deductResult = await deductCurrency(userId, decoration.price);
+      if (!deductResult.success) {
+        alert(`❌ ${deductResult.message}`);
+        return;
+      }
 
-      if (result.success) {
-        alert(`✅ Purchase Successful!\n\nYou bought: ${item.name}\nNew balance: ${result.newBalance} coins`);
-        onPurchase(); // Refresh currency in parent
+      // Add to purchased
+      const purchaseResult = await purchaseDecoration(userId, decoration.id);
+      if (purchaseResult.success) {
+        alert(`🎉 ${decoration.name} purchased!`);
+        await loadDecorations();
+        if (onPurchase) onPurchase();
       } else {
-        alert(`❌ ${result.message}\n\nYou need ${item.price - currency} more coins!`);
+        alert(`❌ ${purchaseResult.message}`);
       }
     } catch (error) {
-      console.error('Purchase error:', error);
-      alert('❌ Error processing purchase');
-    } finally {
-      setPurchasing(null);
+      console.error("Error purchasing decoration:", error);
+      alert("❌ Error purchasing decoration");
     }
   }
 
+  async function handleApply(decoration) {
+    try {
+      // If already active, deactivate it
+      const newActiveId = decoration.isActive ? null : decoration.id;
+      const result = await setActiveDecoration(userId, newActiveId);
+
+      if (result.success) {
+        await loadDecorations();
+        if (onDecorationChange) {
+          onDecorationChange(newActiveId);
+        }
+      } else {
+        alert(`❌ ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Error applying decoration:", error);
+      alert("❌ Error applying decoration");
+    }
+  }
+
+  if (loading) {
+    return <p style={{ textAlign: 'center', color: '#374151' }}>Loading shop...</p>;
+  }
+
   return (
-    <div style={{ color: '#f1f5f9' }}>
+    <div style={{ color: '#000000' }}>
       {/* Currency Display */}
       <div style={{
-        backgroundColor: '#0f172a',
-        padding: '20px',
+        backgroundColor: '#fef3c7',
+        padding: '12px 16px',
         borderRadius: '12px',
-        marginBottom: '32px',
-        border: '2px solid #fbbf24',
+        marginBottom: '20px',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        alignItems: 'center'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {coinIcon ? (
-            <img src={coinIcon} alt="Coin" style={{ width: '32px', height: '32px' }} />
-          ) : (
-            <span style={{ fontSize: '32px' }}>🪙</span>
-          )}
-          <div>
-            <p style={{ margin: 0, fontSize: '14px', color: '#94a3b8' }}>Your Balance</p>
-            <p style={{ margin: 0, fontSize: '32px', fontWeight: 'bold', color: '#fbbf24' }}>
-              {currency} Coins
-            </p>
-          </div>
-        </div>
+        <span style={{ fontWeight: 'bold', color: '#92400e' }}>Your Balance:</span>
+        <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#d97706' }}>
+          {currency} 🪙
+        </span>
       </div>
 
-      {/* Shop Items Grid */}
-      <div>
-        <h3 style={{
-          fontSize: '24px',
-          marginBottom: '20px',
-          color: '#f1f5f9',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px'
-        }}>
-          🛒 Available Items
-        </h3>
+      {/* Tab Navigation */}
+      <div style={{
+        display: 'flex',
+        gap: '8px',
+        marginBottom: '16px'
+      }}>
+        <button
+          onClick={() => setActiveTab("decorations")}
+          style={{
+            flex: 1,
+            padding: '10px',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            backgroundColor: activeTab === "decorations" ? '#8b5cf6' : '#e5e7eb',
+            color: activeTab === "decorations" ? 'white' : '#000000'
+          }}
+        >
+          🎨 Decorations
+        </button>
+      </div>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-          gap: '20px'
-        }}>
-          {shopItems.map((item) => (
-            <div key={item.id} style={{
-              backgroundColor: '#334155',
-              padding: '20px',
-              borderRadius: '12px',
-              border: '2px solid #475569',
-              transition: 'all 0.3s ease',
-              cursor: 'pointer',
-              opacity: purchasing === item.id ? 0.6 : 1
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.borderColor = '#3b82f6';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.borderColor = '#475569';
-            }}
+      {/* Decorations Tab */}
+      {activeTab === "decorations" && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {decorations.map((decoration) => (
+            <div
+              key={decoration.id}
+              style={{
+                border: decoration.isActive ? '2px solid #10b981' : '2px solid #e5e7eb',
+                borderRadius: '12px',
+                padding: '16px',
+                backgroundColor: decoration.isActive ? '#ecfdf5' : 'white',
+                transition: 'all 0.2s'
+              }}
             >
-              <div style={{
-                width: '100%',
-                height: '120px',
-                backgroundColor: '#1e293b',
-                borderRadius: '8px',
-                marginBottom: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '48px'
-              }}>
-                {item.emoji}
-              </div>
-              <h4 style={{ margin: '0 0 8px 0', fontSize: '16px' }}>{item.name}</h4>
-              <p style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#94a3b8' }}>
-                {item.description}
-              </p>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: '#fbbf24', fontWeight: 'bold', fontSize: '18px' }}>
-                  {item.price} 🪙
-                </span>
-                <button
-                  onClick={() => handlePurchase(item)}
-                  disabled={purchasing === item.id || currency < item.price}
-                  style={{
-                    background: currency >= item.price ? '#10b981' : '#6b7280',
-                    color: 'white',
-                    border: 'none',
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    fontWeight: 'bold',
-                    cursor: currency >= item.price ? 'pointer' : 'not-allowed',
-                    opacity: purchasing === item.id ? 0.6 : 1
-                  }}
-                >
-                  {purchasing === item.id ? 'Buying...' : 'Buy'}
-                </button>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '1.5rem' }}>{decoration.icon}</span>
+                    <span style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#000000' }}>{decoration.name}</span>
+                    {decoration.isActive && (
+                      <span style={{
+                        backgroundColor: '#10b981',
+                        color: 'white',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        fontSize: '11px',
+                        fontWeight: 'bold'
+                      }}>
+                        ACTIVE
+                      </span>
+                    )}
+                  </div>
+                  <p style={{ margin: '4px 0', color: '#4b5563', fontSize: '14px' }}>
+                    {decoration.description}
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+                  {!decoration.isPurchased ? (
+                    <>
+                      <span style={{ fontWeight: 'bold', color: '#d97706' }}>
+                        {decoration.price} 🪙
+                      </span>
+                      <button
+                        onClick={() => handlePurchase(decoration)}
+                        disabled={currency < decoration.price}
+                        style={{
+                          padding: '8px 16px',
+                          backgroundColor: currency >= decoration.price ? '#10b981' : '#9ca3af',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          cursor: currency >= decoration.price ? 'pointer' : 'not-allowed',
+                          fontWeight: 'bold',
+                          fontSize: '14px'
+                        }}
+                      >
+                        Buy
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <span style={{
+                        color: '#10b981',
+                        fontWeight: 'bold',
+                        fontSize: '12px'
+                      }}>
+                        ✓ Owned
+                      </span>
+                      <button
+                        onClick={() => handleApply(decoration)}
+                        style={{
+                          padding: '8px 16px',
+                          backgroundColor: decoration.isActive ? '#ef4444' : '#3b82f6',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          fontWeight: 'bold',
+                          fontSize: '14px'
+                        }}
+                      >
+                        {decoration.isActive ? 'Remove' : 'Apply'}
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           ))}
         </div>
-      </div>
+      )}
     </div>
   );
 }
 
 // ============================================================================
-// QUEST MODAL CONTENT - CONNECTED TO FIREBASE
+// QUEST CONTENT
+// Displays quests and claim buttons
 // ============================================================================
 export function QuestContent({ userId, quests, loading, onClaimReward, onRefresh }) {
   if (loading) {
-    return (
-      <div style={{ color: '#f1f5f9', textAlign: 'center', padding: '40px' }}>
-        <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
-        <p>Loading quests...</p>
-      </div>
-    );
-  }
-
-  if (!quests || quests.length === 0) {
-    return (
-      <div style={{ color: '#f1f5f9', textAlign: 'center', padding: '40px' }}>
-        <div style={{ fontSize: '48px', marginBottom: '16px' }}>📜</div>
-        <h3>No Quests Available</h3>
-        <p style={{ color: '#94a3b8' }}>Complete chores to unlock new quests!</p>
-      </div>
-    );
+    return <p style={{ textAlign: 'center', color: '#374151' }}>Loading quests...</p>;
   }
 
   const activeQuests = quests.filter(q => !q.isClaimed);
   const completedQuests = quests.filter(q => q.isClaimed);
 
   return (
-    <div style={{ color: '#f1f5f9' }}>
-      {/* Quest Progress Header */}
-      <div style={{
-        backgroundColor: '#0f172a',
-        padding: '20px',
-        borderRadius: '12px',
-        marginBottom: '24px',
-        border: '2px solid #8b5cf6'
-      }}>
-        <h3 style={{ margin: '0 0 8px 0', fontSize: '20px', color: '#c084fc' }}>
-          📊 Quest Progress
-        </h3>
-        <p style={{ margin: 0, color: '#94a3b8' }}>
-          {activeQuests.length} active quest{activeQuests.length !== 1 ? 's' : ''} |
-          {' '}{completedQuests.length} completed
-        </p>
-      </div>
-
+    <div style={{ color: '#000000' }}>
       {/* Active Quests */}
-      {activeQuests.length > 0 && (
-        <div style={{ marginBottom: '32px' }}>
-          <h3 style={{
-            fontSize: '24px',
-            marginBottom: '20px',
-            color: '#f1f5f9',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            📜 Active Quests
-          </h3>
+      <h3 style={{ marginBottom: '12px', color: '#000000' }}>Active Quests</h3>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {activeQuests.map((quest) => {
-              const progressPercent = Math.min(100, Math.round((quest.currentProgress / quest.targetValue) * 100));
-              const isComplete = quest.isCompleted;
-
-              return (
-                <div key={quest.id} style={{
-                  backgroundColor: '#334155',
-                  padding: '24px',
-                  borderRadius: '12px',
-                  border: isComplete ? '2px solid #10b981' : '2px solid #475569',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = isComplete ? '#059669' : '#8b5cf6';
-                  e.currentTarget.style.transform = 'translateX(4px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = isComplete ? '#10b981' : '#475569';
-                  e.currentTarget.style.transform = 'translateX(0)';
-                }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
-                    <div>
-                      <h4 style={{ margin: '0 0 4px 0', fontSize: '18px', fontWeight: 'bold' }}>
-                        {quest.title}
-                      </h4>
-                      <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#94a3b8' }}>
-                        {quest.description}
-                      </p>
-                      <span style={{
-                        fontSize: '12px',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        backgroundColor: quest.type === 'daily' ? '#3b82f6' :
-                                       quest.type === 'weekly' ? '#10b981' :
-                                       quest.type === 'monthly' ? '#f59e0b' : '#8b5cf6',
-                        color: 'white',
-                        fontWeight: 'bold'
-                      }}>
-                        {quest.type.toUpperCase()}
-                      </span>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <p style={{ margin: 0, fontSize: '14px', color: '#94a3b8' }}>Reward</p>
-                      <p style={{ margin: 0, fontSize: '20px', fontWeight: 'bold', color: '#fbbf24' }}>
-                        {quest.reward} 🪙
-                      </p>
-                    </div>
+      {activeQuests.length === 0 ? (
+        <p style={{ color: '#4b5563', textAlign: 'center', padding: '20px' }}>
+          No active quests. Check back later!
+        </p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
+          {activeQuests.map((quest) => (
+            <div
+              key={quest.id}
+              style={{
+                border: quest.isCompleted ? '2px solid #10b981' : '2px solid #e5e7eb',
+                borderRadius: '12px',
+                padding: '16px',
+                backgroundColor: quest.isCompleted ? '#ecfdf5' : 'white'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <span style={{ fontWeight: 'bold', color: '#000000' }}>{quest.title}</span>
+                    <span style={{
+                      backgroundColor: quest.type === 'daily' ? '#dbeafe' : '#fef3c7',
+                      color: quest.type === 'daily' ? '#1d4ed8' : '#92400e',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      textTransform: 'uppercase'
+                    }}>
+                      {quest.type}
+                    </span>
                   </div>
+                  <p style={{ margin: '4px 0', color: '#4b5563', fontSize: '14px' }}>
+                    {quest.description}
+                  </p>
 
                   {/* Progress Bar */}
-                  <div style={{ marginBottom: '12px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                      <span style={{ fontSize: '14px', color: '#94a3b8' }}>
-                        Progress: {quest.currentProgress} / {quest.targetValue}
-                      </span>
-                      <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#c084fc' }}>
-                        {progressPercent}%
-                      </span>
+                  <div style={{ marginTop: '8px' }}>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      fontSize: '12px',
+                      marginBottom: '4px',
+                      color: '#000000'
+                    }}>
+                      <span>Progress</span>
+                      <span>{quest.currentProgress} / {quest.targetValue}</span>
                     </div>
                     <div style={{
-                      width: '100%',
-                      height: '12px',
-                      backgroundColor: '#1e293b',
-                      borderRadius: '6px',
+                      backgroundColor: '#e5e7eb',
+                      borderRadius: '8px',
+                      height: '8px',
                       overflow: 'hidden'
                     }}>
                       <div style={{
-                        width: `${progressPercent}%`,
+                        backgroundColor: quest.isCompleted ? '#10b981' : '#3b82f6',
                         height: '100%',
-                        background: isComplete
-                          ? 'linear-gradient(90deg, #10b981 0%, #059669 100%)'
-                          : 'linear-gradient(90deg, #8b5cf6 0%, #c084fc 100%)',
-                        borderRadius: '6px',
-                        transition: 'width 0.5s ease'
+                        width: `${Math.min((quest.currentProgress / quest.targetValue) * 100, 100)}%`,
+                        transition: 'width 0.3s ease'
                       }} />
                     </div>
                   </div>
-
-                  <button
-                    onClick={() => onClaimReward(quest.id)}
-                    disabled={!isComplete}
-                    style={{
-                      width: '100%',
-                      background: isComplete ? '#10b981' : '#475569',
-                      color: 'white',
-                      border: 'none',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      fontSize: '16px',
-                      fontWeight: 'bold',
-                      cursor: isComplete ? 'pointer' : 'not-allowed',
-                      opacity: isComplete ? 1 : 0.6,
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (isComplete) {
-                        e.currentTarget.style.background = '#059669';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (isComplete) {
-                        e.currentTarget.style.background = '#10b981';
-                      }
-                    }}
-                  >
-                    {isComplete ? '🎉 Claim Reward' : 'In Progress'}
-                  </button>
                 </div>
-              );
-            })}
-          </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', marginLeft: '16px' }}>
+                  <span style={{ fontWeight: 'bold', color: '#d97706' }}>
+                    +{quest.reward} 🪙
+                  </span>
+                  {quest.isCompleted && !quest.isClaimed && (
+                    <button
+                      onClick={() => onClaimReward(quest.id)}
+                      style={{
+                        padding: '8px 16px',
+                        backgroundColor: '#10b981',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        animation: 'pulse 2s infinite'
+                      }}
+                    >
+                      Claim!
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
-      {/* Completed Quests Section */}
+      {/* Completed Quests */}
       {completedQuests.length > 0 && (
-        <div>
-          <h3 style={{
-            fontSize: '20px',
-            marginBottom: '16px',
-            color: '#94a3b8'
-          }}>
-            ✅ Completed Quests
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <>
+          <h3 style={{ marginBottom: '12px', color: '#000000' }}>Completed</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {completedQuests.map((quest) => (
-              <div key={quest.id} style={{
-                backgroundColor: '#1e293b',
-                padding: '16px',
-                borderRadius: '8px',
-                border: '1px solid #334155',
-                opacity: 0.7
-              }}>
+              <div
+                key={quest.id}
+                style={{
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  backgroundColor: '#f9fafb',
+                  opacity: 0.7
+                }}
+              >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '16px' }}>{quest.title}</span>
-                  <span style={{ color: '#10b981', fontSize: '14px', fontWeight: 'bold' }}>
+                  <span style={{ color: '#4b5563' }}>{quest.title}</span>
+                  <span style={{ color: '#10b981', fontWeight: 'bold', fontSize: '14px' }}>
                     ✓ Claimed
                   </span>
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </>
       )}
+
+      {/* Refresh Button */}
+      <button
+        onClick={onRefresh}
+        style={{
+          marginTop: '20px',
+          padding: '10px 20px',
+          backgroundColor: '#e5e7eb',
+          color: '#000000',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          width: '100%',
+          fontWeight: 'bold'
+        }}
+      >
+        🔄 Refresh Quests
+      </button>
     </div>
-  );
-}
-
-// ============================================================================
-// BUTTON COMPONENTS
-// ============================================================================
-export function ShopButton({ onClick, icon }) {
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-        color: 'white',
-        border: 'none',
-        padding: '12px 24px',
-        borderRadius: '8px',
-        fontSize: '16px',
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        transition: 'all 0.3s ease',
-        boxShadow: '0 4px 12px -2px rgba(59, 130, 246, 0.5)'
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
-        e.currentTarget.style.boxShadow = '0 6px 16px -2px rgba(59, 130, 246, 0.7)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0) scale(1)';
-        e.currentTarget.style.boxShadow = '0 4px 12px -2px rgba(59, 130, 246, 0.5)';
-      }}
-    >
-      {icon ? (
-        <img src={icon} alt="Shop" style={{ width: '20px', height: '20px' }} />
-      ) : (
-        <span>🛒</span>
-      )}
-      Shop
-    </button>
-  );
-}
-
-export function QuestsButton({ onClick, icon }) {
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
-        color: 'white',
-        border: 'none',
-        padding: '12px 24px',
-        borderRadius: '8px',
-        fontSize: '16px',
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        transition: 'all 0.3s ease',
-        boxShadow: '0 4px 12px -2px rgba(139, 92, 246, 0.5)'
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
-        e.currentTarget.style.boxShadow = '0 6px 16px -2px rgba(139, 92, 246, 0.7)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0) scale(1)';
-        e.currentTarget.style.boxShadow = '0 4px 12px -2px rgba(139, 92, 246, 0.5)';
-      }}
-    >
-      {icon ? (
-        <img src={icon} alt="Quests" style={{ width: '20px', height: '20px' }} />
-      ) : (
-        <span>📜</span>
-      )}
-      Quests
-    </button>
   );
 }
