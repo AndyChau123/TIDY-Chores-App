@@ -9,10 +9,32 @@ import ChoreList from "./Chore-List-Component/ChoreList.jsx";
 import LoginPage from "./Login-Page/LoginPage.jsx";
 import Currency from "./Currency-Component/Currency.jsx";
 import TidyLogo from "./assets/TidyLogo.png";
+import {
+  getUserCurrency,
+  getUserQuests,
+  claimQuestReward,
+  initializeDailyQuests,
+  initializeWeeklyQuests,
+  getClaimableQuests
+} from './questCurrencyHelper';
+
+
+// Import the modal components from the artifact
+// (You'll need to create a new file called ShopQuestModals.jsx with the modal code)
+import { Modal, ShopContent, QuestContent, ShopButton, QuestsButton } from "./Shop-Quest-Component/ShopQuestModals.jsx";
 
 function AppContent() {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userId] = useState("current-user-id"); // Replace with actual user ID from auth
+  const [currency, setCurrency] = useState(0);
+
+  // ============================================================================
+  // MODAL STATE MANAGEMENT
+  // Controls visibility of Shop and Quests modals
+  // ============================================================================
+  const [isShopOpen, setIsShopOpen] = useState(false);
+  const [isQuestsOpen, setIsQuestsOpen] = useState(false);
 
   // Load members from Firestore when page loads or refreshes
   useEffect(() => {
@@ -55,6 +77,21 @@ function AppContent() {
     );
   };
 
+  // Load currency when component mounts
+  useEffect(() => {
+    async function loadUserData() {
+      const balance = await getUserCurrency(userId);
+      setCurrency(balance);
+    }
+    loadUserData();
+  }, [userId]);
+
+  // Refresh currency after any transaction
+  async function refreshCurrency() {
+    const balance = await getUserCurrency(userId);
+    setCurrency(balance);
+  }
+
   return (
     <div className="app-container">
       <div className="app-header">
@@ -62,11 +99,21 @@ function AppContent() {
           <img src={TidyLogo} alt="TIDY logo" className="logo__img" />
         </div>
 
+        {/* ============================================================================
+            SHOP AND QUESTS BUTTONS - Positioned above Currency
+            Click these to open the respective modal windows
+            ============================================================================ */}
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <ShopButton onClick={() => setIsShopOpen(true)} />
+          <QuestsButton onClick={() => setIsQuestsOpen(true)} />
+        </div>
+
         <AddMember
           onAddMember={handleAddMember}
           onRemoveMember={handleRemoveMember}
           existingMembers={members}
         />
+
         <Currency userId="current-user-id" />
       </div>
 
@@ -82,6 +129,28 @@ function AppContent() {
           />
         </div>
       </div>
+
+      {/* ============================================================================
+          MODAL WINDOWS - Hidden until user clicks Shop or Quests button
+          ============================================================================ */}
+
+      {/* SHOP MODAL - Opens when isShopOpen is true */}
+      <Modal
+        isOpen={isShopOpen}
+        onClose={() => setIsShopOpen(false)}
+        title="🛒 Shop"
+      >
+        <ShopContent />
+      </Modal>
+
+      {/* QUESTS MODAL - Opens when isQuestsOpen is true */}
+      <Modal
+        isOpen={isQuestsOpen}
+        onClose={() => setIsQuestsOpen(false)}
+        title="📜 Quests"
+      >
+        <QuestContent />
+      </Modal>
     </div>
   );
 }
