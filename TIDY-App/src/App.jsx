@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
-import { loadMembersFromDB, updateChoresInDB } from "./firebaseHelper.js";
+import {
+  loadMembersFromDB,
+  updateChoresInDB,
+  saveMemberToDB,
+  removeMemberFromDB
+} from "./firebaseHelper.js";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
-import { getAuth, signOut } from "firebase/auth";
 
 import "./App.css";
 import AddMember from "./Add-Member-Component/AddMember.jsx";
@@ -42,9 +46,16 @@ function AppContent() {
   const [loading, setLoading] = useState(true);
 
   // ============================================================================
-  // USER & CURRENCY STATE
+  // FAMILY STATE (from localStorage)
   // ============================================================================
-  const [userId] = useState("current-user-id"); // Replace with actual user ID from auth
+  const [familyId, setFamilyId] = useState(null);
+  const [familyCode, setFamilyCode] = useState('');
+  const [familyName, setFamilyName] = useState('');
+  const [authChecked, setAuthChecked] = useState(false);
+
+  // ============================================================================
+  // CURRENCY STATE
+  // ============================================================================
   const [currency, setCurrency] = useState(0);
   const [currencyLoading, setCurrencyLoading] = useState(true);
 
@@ -67,44 +78,67 @@ function AppContent() {
   const [isQuestsOpen, setIsQuestsOpen] = useState(false);
 
   // ============================================================================
+  // CHECK AUTHENTICATION ON MOUNT
+  // ============================================================================
+  useEffect(() => {
+    const storedFamilyId = localStorage.getItem('familyId');
+    const storedFamilyCode = localStorage.getItem('familyCode');
+    const storedFamilyName = localStorage.getItem('familyName');
+
+    if (storedFamilyId) {
+      setFamilyId(storedFamilyId);
+      setFamilyCode(storedFamilyCode || '');
+      setFamilyName(storedFamilyName || 'My Family');
+      console.log('Family session found:', storedFamilyCode);
+    } else {
+      console.log('No family session, redirecting to login');
+      navigate('/');
+    }
+
+    setAuthChecked(true);
+  }, [navigate]);
+
+  // ============================================================================
   // INITIALIZE USER DATA ON MOUNT
   // ============================================================================
   useEffect(() => {
+    if (!familyId || !authChecked) return;
+
     async function initializeUser() {
       try {
-        // Load members
-        const storedMembers = await loadMembersFromDB();
-        console.log("Loaded from Firestore:", storedMembers);
+        // Load members FOR THIS FAMILY
+        const storedMembers = await loadMembersFromDB(familyId);
+        console.log("Loaded members from Firestore:", storedMembers);
         setMembers(storedMembers);
         setLoading(false);
 
         // Load currency
-        const balance = await getUserCurrency(userId);
+        const balance = await getUserCurrency(familyId);
         setCurrency(balance);
         setCurrencyLoading(false);
 
         // Load quests
-        const userQuests = await getUserQuests(userId);
+        const userQuests = await getUserQuests(familyId);
 
         // If user has no quests, initialize default quests
         if (userQuests.length === 0) {
           console.log("No quests found, initializing default quests...");
-          await initializeDailyQuests(userId);
-          await initializeWeeklyQuests(userId);
+          await initializeDailyQuests(familyId);
+          await initializeWeeklyQuests(familyId);
 
           // Reload quests after initialization
-          const newQuests = await getUserQuests(userId);
+          const newQuests = await getUserQuests(familyId);
           setQuests(newQuests);
         } else {
           setQuests(userQuests);
         }
 
         // Count claimable quests
-        const claimable = await getClaimableQuests(userId);
+        const claimable = await getClaimableQuests(familyId);
         setClaimableCount(claimable.length);
 
         // Load active decoration
-        const decorations = await getUserDecorations(userId);
+        const decorations = await getUserDecorations(familyId);
         setActiveDecoration(decorations.active);
 
         setQuestsLoading(false);
@@ -117,26 +151,26 @@ function AppContent() {
     }
 
     initializeUser();
-  }, [userId]);
+  }, [familyId, authChecked]);
 
-  // Logout handle
-    const handleLogout = async () => {
-    try {
-      const auth = getAuth();
-      await signOut(auth);
-      navigate("/"); // Redirect to login page
-    } catch (error) {
-      console.error("Error logging out:", error);
-      alert("Error logging out. Please try again.");
-    }
+  // ============================================================================
+  // LOGOUT HANDLER
+  // ============================================================================
+  const handleLogout = () => {
+    localStorage.removeItem('familyId');
+    localStorage.removeItem('familyCode');
+    localStorage.removeItem('familyName');
+    navigate("/");
+    console.log("Logged out successfully");
   };
 
   // ============================================================================
   // CURRENCY REFRESH FUNCTION
   // ============================================================================
   async function refreshCurrency() {
+    if (!familyId) return;
     try {
-      const balance = await getUserCurrency(userId);
+      const balance = await getUserCurrency(familyId);
       setCurrency(balance);
     } catch (error) {
       console.error("Error refreshing currency:", error);
@@ -147,12 +181,13 @@ function AppContent() {
   // QUEST REFRESH FUNCTION
   // ============================================================================
   async function refreshQuests() {
+    if (!familyId) return;
     try {
-      const userQuests = await getUserQuests(userId);
+      const userQuests = await getUserQuests(familyId);
       setQuests(userQuests);
 
       // Update claimable count
-      const claimable = await getClaimableQuests(userId);
+      const claimable = await getClaimableQuests(familyId);
       setClaimableCount(claimable.length);
     } catch (error) {
       console.error("Error refreshing quests:", error);
@@ -170,8 +205,9 @@ function AppContent() {
   // HANDLE QUEST CLAIM
   // ============================================================================
   async function handleClaimQuest(questId) {
+    if (!familyId) return;
     try {
-      const result = await claimQuestReward(userId, questId);
+      const result = await claimQuestReward(familyId, questId);
 
       if (result.success) {
         alert(`🎉 ${result.message}\nYou earned ${result.reward} coins!`);
@@ -190,40 +226,57 @@ function AppContent() {
 
   // ============================================================================
   // MEMBER MANAGEMENT FUNCTIONS
+  // Now saves to family-specific collection
   // ============================================================================
-  const handleAddMember = (newMember) => {
-    setMembers((prev) => {
-      const exists = prev.find((m) => m.id === newMember.id);
-      if (exists) {
-        return prev.map((m) =>
-          m.id === newMember.id ? { ...m, name: newMember.name, chores: m.chores || [] } : m
-        );
-      } else {
-        return [...prev, { ...newMember, chores: newMember.chores || [] }];
-      }
-    });
+  const handleAddMember = async (newMember) => {
+    if (!familyId) return;
+
+    try {
+      // Update local state first for responsive UI
+      setMembers((prev) => {
+        const exists = prev.find((m) => m.id === newMember.id);
+        if (exists) {
+          return prev.map((m) =>
+            m.id === newMember.id ? { ...m, name: newMember.name, chores: m.chores || [] } : m
+          );
+        } else {
+          return [...prev, { ...newMember, chores: newMember.chores || [] }];
+        }
+      });
+
+      // Save to Firebase under this family
+      await saveMemberToDB(familyId, { ...newMember, chores: newMember.chores || [] });
+      console.log("Member saved to family:", familyId);
+    } catch (error) {
+      console.error("Error adding member:", error);
+      alert("Error adding member. Please try again.");
+    }
   };
 
-  const handleRemoveMember = (memberId) => {
-    setMembers((prev) => prev.filter((m) => m.id !== memberId));
+  const handleRemoveMember = async (memberId) => {
+    if (!familyId) return;
+
+    try {
+      // Update local state first
+      setMembers((prev) => prev.filter((m) => m.id !== memberId));
+
+      // Remove from Firebase
+      await removeMemberFromDB(familyId, memberId);
+      console.log("Member removed from family:", familyId);
+    } catch (error) {
+      console.error("Error removing member:", error);
+      alert("Error removing member. Please try again.");
+    }
   };
 
   // ============================================================================
   // HANDLE CHORE UPDATE - USING completedBefore FLAG
-  // Only counts chores that have NEVER been completed before (completedBefore = false)
-  // Once completedBefore is set to true, that chore can never trigger quest progress again
-  //
-  // FIXED: Now compares chores by ID instead of by index to prevent double-counting
-  // when chores are added (which shifts indices)
+  // Now includes familyId in the update
   // ============================================================================
   const handleUpdateMemberChores = async (memberId, updatedChores) => {
-    try {
-      // Find newly completed chores that have NEVER been completed before
-      // These are chores where:
-      // 1. completed = true (currently checked)
-      // 2. completedBefore = true (flag was just set)
-      // 3. The OLD version had completedBefore = false (first time completion)
+    if (!familyId) return;
 
+    try {
       const member = members.find(m => m.id === memberId);
       if (!member) {
         console.error("Member not found:", memberId);
@@ -233,15 +286,9 @@ function AppContent() {
       const oldChores = member.chores || [];
       const newlyCompletedChores = [];
 
-      // FIXED: Find chores by ID, not by index!
-      // This prevents bugs when chores are added/removed and indices shift
       updatedChores.forEach((newChore) => {
         const oldChore = oldChores.find(c => c.id === newChore.id);
 
-        // Check if this is a FIRST-TIME completion:
-        // - New chore is completed
-        // - New chore has completedBefore = true (just set)
-        // - Old chore had completedBefore = false (or didn't exist)
         const isCompleted = newChore.completed === true;
         const wasNeverCompletedBefore = oldChore?.completedBefore !== true;
         const isNowMarkedAsCompletedBefore = newChore.completedBefore === true;
@@ -259,23 +306,21 @@ function AppContent() {
         )
       );
 
-      // Save to Firebase (this persists the completedBefore flag)
-      await updateChoresInDB(memberId, updatedChores);
+      // Save to Firebase WITH familyId
+      await updateChoresInDB(familyId, memberId, updatedChores);
 
       // Process ONLY first-time completed chores
       if (newlyCompletedChores.length > 0) {
         console.log(`Processing ${newlyCompletedChores.length} first-time completed chore(s)`);
 
-        // Update quest progress for each first-time completed chore
         for (let i = 0; i < newlyCompletedChores.length; i++) {
-          await onChoreCompleted(userId);
+          await onChoreCompleted(familyId);
         }
 
         // Refresh UI
         await refreshQuests();
         await refreshCurrency();
 
-        // Show success message
         const choreText = newlyCompletedChores.length === 1 ? 'chore' : 'chores';
         alert(`✅ ${newlyCompletedChores.length} ${choreText} completed!`);
       } else {
@@ -287,6 +332,25 @@ function AppContent() {
       alert('Error updating chores. Please try again.');
     }
   };
+
+  // ============================================================================
+  // LOADING STATE
+  // ============================================================================
+  if (!authChecked || !familyId) {
+    return (
+      <div className="app-container" style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <img src={TidyLogo} alt="TIDY logo" style={{ width: '120px', marginBottom: '20px' }} />
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="app-container">
@@ -339,35 +403,72 @@ function AppContent() {
           onAddMember={handleAddMember}
           onRemoveMember={handleRemoveMember}
           existingMembers={members}
+          familyId={familyId}
         />
 
         {/* Pass currency and loading state to Currency component */}
         <Currency
-          userId={userId}
+          userId={familyId}
           balance={currency}
           loading={currencyLoading}
           onRefresh={refreshCurrency}
         />
-        <button
-          onClick={handleLogout}
-          style={{
-            padding: '8px 16px',
-            backgroundColor: '#ef4444',
-            color: 'white',
-            border: 'none',
+
+        {/* Family Info & Logout - Stacked vertically */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'stretch' }}>
+          {/* Family Info Box */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            backgroundColor: '#f3f4f6',
+            padding: '8px 12px',
             borderRadius: '8px',
-            cursor: 'pointer',
-            fontWeight: '500'
-          }}
-        >
-          Logout
-        </button>
+            gap: '2px'
+          }}>
+            <span style={{
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#333',
+            }}>
+              {familyName}
+            </span>
+            <span style={{
+              fontSize: '11px',
+              color: '#888',
+              fontFamily: 'monospace',
+              letterSpacing: '1px'
+            }}>
+              {familyCode}
+            </span>
+          </div>
+
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#ef4444',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: '500',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#dc2626'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#ef4444'}
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
       <div className="app-content">
         <div className="chore-list-section">
           <ChoreList
-            userId={userId}
+            userId={familyId}
+            familyId={familyId}
             onQuestUpdate={() => {
               refreshQuests();
               refreshCurrency();
@@ -379,7 +480,8 @@ function AppContent() {
           <MemberChoreList
             members={members}
             onUpdateMemberChores={handleUpdateMemberChores}
-            userId={userId}
+            userId={familyId}
+            familyId={familyId}
           />
         </div>
       </div>
@@ -395,7 +497,7 @@ function AppContent() {
         title="🛒 Shop"
       >
         <ShopContent
-          userId={userId}
+          userId={familyId}
           currency={currency}
           onPurchase={refreshCurrency}
           onDecorationChange={handleDecorationChange}
@@ -409,7 +511,7 @@ function AppContent() {
         title="📜 Quests"
       >
         <QuestContent
-          userId={userId}
+          userId={familyId}
           quests={quests}
           loading={questsLoading}
           onClaimReward={handleClaimQuest}

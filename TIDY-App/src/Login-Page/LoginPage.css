@@ -109,6 +109,243 @@ body {
   text-align: center;
 }
 
+/* ============================================================================
+   SIGNUP LINK
+   ============================================================================ */
+
+.signup-link {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+}
+
+.signup-link .link-button {
+  background: none;
+  border: none;
+  color: #229fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.signup-link .link-button:hover {
+  color: #ff2727;
+}
+
+/* ============================================================================
+   OVERLAY STYLES
+   ============================================================================ */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.overlay-content {
+  background: white;
+  padding: 50px 40px;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  box-sizing: border-box;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.overlay-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: #f0f0f0;
+  border-radius: 50%;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: background-color 0.2s, color 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+
+.overlay-close:hover {
+  background: #e0e0e0;
+  color: #333;
+  transform: none;
+  box-shadow: none;
+}
+
+.overlay-content h2 {
+  margin: 0 0 12px 0;
+  font-size: 1.75em;
+  color: #333;
+  text-align: center;
+}
+
+.overlay-subtitle {
+  text-align: center;
+  color: #666;
+  margin: 0 0 24px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.overlay-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.overlay-content input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  box-sizing: border-box;
+}
+
+.overlay-content input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.overlay-content input:disabled {
+  background-color: #f7fafc;
+  cursor: not-allowed;
+}
+
+.overlay-content button[type="submit"],
+.overlay-content button:not(.overlay-close):not(.copy-button) {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #229fff 0%, #ff2727 100%, #ffea00 0%);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+  margin-top: 8px;
+}
+
+.overlay-content button[type="submit"]:hover,
+.overlay-content button:not(.overlay-close):not(.copy-button):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(255, 255, 6, 0.4);
+}
+
+.overlay-content button[type="submit"]:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ============================================================================
+   CODE DISPLAY OVERLAY
+   ============================================================================ */
+
+.code-display-content {
+  text-align: center;
+}
+
+.success-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.code-display-box {
+  background: linear-gradient(135deg, #f0f4ff 0%, #fff0f0 100%);
+  border: 3px dashed #229fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.generated-code {
+  font-family: 'Courier New', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+  letter-spacing: 3px;
+  user-select: all;
+}
+
+.copy-button {
+  padding: 10px 20px;
+  background: #229fff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: auto !important;
+  margin-top: 0 !important;
+}
+
+.copy-button:hover {
+  background: #1a8fe6;
+  transform: scale(1.02) !important;
+  box-shadow: none !important;
+}
+
+.code-warning {
+  background: #fffbeb;
+  border: 1px solid #fbbf24;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+  text-align: left;
+}
+
+.code-warning p {
+  margin: 0;
+  font-size: 14px;
+  color: #92400e;
+  line-height: 1.5;
+}
+
+.code-warning p:first-child {
+  margin-bottom: 6px;
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
 @media (max-width: 480px) {
   .login-box {
     padding: 40px 30px;
@@ -116,5 +353,14 @@ body {
 
   .login-box h2 {
     font-size: 1.75em;
+  }
+
+  .overlay-content {
+    padding: 40px 24px;
+  }
+
+  .generated-code {
+    font-size: 22px;
+    letter-spacing: 2px;
   }
 }

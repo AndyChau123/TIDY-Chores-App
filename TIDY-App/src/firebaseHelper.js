@@ -17,12 +17,12 @@ import { onChoreCompleted, addCurrency } from "./questCurrencyHelper";
 
 /**
  * Get user's display name
- * @param {string} userId - The user's ID
+ * @param {string} familyId - The family's ID
  * @returns {Promise<string|null>} The user's name or null
  */
-export async function getUserName(userId) {
+export async function getUserName(familyId) {
   try {
-    const userRef = doc(db, "users", userId);
+    const userRef = doc(db, "users", familyId);
     const userSnap = await getDoc(userRef);
 
     if (userSnap.exists()) {
@@ -37,12 +37,12 @@ export async function getUserName(userId) {
 
 /**
  * Save user's display name
- * @param {string} userId - The user's ID
+ * @param {string} familyId - The family's ID
  * @param {string} name - The name to save
  */
-export async function saveUserName(userId, name) {
+export async function saveUserName(familyId, name) {
   try {
-    const userRef = doc(db, "users", userId);
+    const userRef = doc(db, "users", familyId);
     await setDoc(userRef, { displayName: name }, { merge: true });
   } catch (error) {
     console.error("Error saving user name:", error);
@@ -51,47 +51,81 @@ export async function saveUserName(userId, name) {
 }
 
 // ============================================================================
-// MEMBER FUNCTIONS
+// MEMBER FUNCTIONS (FAMILY-SCOPED)
+// Members are now stored under: users/{familyId}/members/{memberId}
 // ============================================================================
 
-// Save or update a member
-export async function saveMemberToDB(member) {
-  await setDoc(doc(db, "members", member.id.toString()), member, {
-    merge: true,
-  });
+/**
+ * Save or update a member for a specific family
+ * @param {string} familyId - The family's ID
+ * @param {object} member - The member object to save
+ */
+export async function saveMemberToDB(familyId, member) {
+  if (!familyId) {
+    console.error("saveMemberToDB: familyId is required");
+    throw new Error("familyId is required");
+  }
+
+  if (!member || !member.id) {
+    console.error("saveMemberToDB: member with id is required");
+    throw new Error("member with id is required");
+  }
+
+  const memberRef = doc(db, "users", familyId, "members", member.id.toString());
+  await setDoc(memberRef, member, { merge: true });
 }
 
-// Remove a member
-export async function removeMemberFromDB(memberId) {
-  await deleteDoc(doc(db, "members", memberId.toString()));
+/**
+ * Remove a member from a specific family
+ * @param {string} familyId - The family's ID
+ * @param {string} memberId - The member's ID to remove
+ */
+export async function removeMemberFromDB(familyId, memberId) {
+  if (!familyId) {
+    console.error("removeMemberFromDB: familyId is required");
+    throw new Error("familyId is required");
+  }
+
+  const memberRef = doc(db, "users", familyId, "members", memberId.toString());
+  await deleteDoc(memberRef);
 }
 
-export async function updateChoresInDB(memberId, chores, userId = null) {
+/**
+ * Update chores for a specific member in a family
+ * @param {string} familyId - The family's ID
+ * @param {string} memberId - The member's ID
+ * @param {array} chores - The updated chores array
+ */
+export async function updateChoresInDB(familyId, memberId, chores) {
+  if (!familyId) {
+    console.error("updateChoresInDB: familyId is required");
+    throw new Error("familyId is required");
+  }
+
   try {
-    // Update the member's chores in Firebase
-    await updateDoc(doc(db, "members", memberId.toString()), { chores });
-
-    // If userId is provided and a chore was completed, trigger quest updates
-    if (userId) {
-      // Count completed chores (assuming chores have a 'completed' property)
-      const completedChores = chores.filter(chore => chore.completed);
-
-      // If there are completed chores, trigger quest progress
-      if (completedChores.length > 0) {
-        await onChoreCompleted(userId);
-      }
-    }
+    const memberRef = doc(db, "users", familyId, "members", memberId.toString());
+    await updateDoc(memberRef, { chores });
   } catch (error) {
     console.error("Error updating chores:", error);
     throw error;
   }
 }
 
-// Complete Chore
-export async function completeChore(memberId, choreId, userId, currencyReward = 10) {
+/**
+ * Complete a chore for a member
+ * @param {string} familyId - The family's ID
+ * @param {string} memberId - The member's ID
+ * @param {string} choreId - The chore's ID
+ * @param {number} currencyReward - Currency to award (default 10)
+ */
+export async function completeChore(familyId, memberId, choreId, currencyReward = 10) {
+  if (!familyId) {
+    console.error("completeChore: familyId is required");
+    return { success: false, message: "familyId is required", newChores: [] };
+  }
+
   try {
-    // Get the member's current chores
-    const memberRef = doc(db, "members", memberId.toString());
+    const memberRef = doc(db, "users", familyId, "members", memberId.toString());
     const memberSnap = await getDoc(memberRef);
 
     if (!memberSnap.exists()) {
@@ -109,11 +143,11 @@ export async function completeChore(memberId, choreId, userId, currencyReward = 
     // Update chores in database
     await updateDoc(memberRef, { chores: updatedChores });
 
-    // Award currency to user
-    await addCurrency(userId, currencyReward);
+    // Award currency to family
+    await addCurrency(familyId, currencyReward);
 
     // Trigger quest progress
-    await onChoreCompleted(userId);
+    await onChoreCompleted(familyId);
 
     return {
       success: true,
@@ -130,34 +164,85 @@ export async function completeChore(memberId, choreId, userId, currencyReward = 
   }
 }
 
-// Load ALL members (Option A)
-export async function loadMembersFromDB() {
-  const snapshot = await getDocs(collection(db, "members"));
-  const list = [];
-  snapshot.forEach((doc) => list.push(doc.data()));
-  return list;
-}
-
-// ============================================================================
-// MAIN CHORES FUNCTIONS
-// ============================================================================
-
-export async function loadMainChores() {
-  const ref = doc(db, "main", "chores");
-  const snap = await getDoc(ref);
-
-  if (snap.exists()) {
-    return snap.data().chores || [];
+/**
+ * Load all members for a specific family
+ * @param {string} familyId - The family's ID
+ * @returns {Promise<array>} Array of member objects
+ */
+export async function loadMembersFromDB(familyId) {
+  if (!familyId) {
+    console.error("loadMembersFromDB: familyId is required");
+    return [];
   }
-  return []; // default if no chores yet
+
+  try {
+    const membersRef = collection(db, "users", familyId, "members");
+    const snapshot = await getDocs(membersRef);
+    const list = [];
+    snapshot.forEach((doc) => list.push({ id: doc.id, ...doc.data() }));
+    return list;
+  } catch (error) {
+    console.error("Error loading members:", error);
+    return [];
+  }
 }
 
-export async function saveMainChores(chores) {
-  const ref = doc(db, "main", "chores");
+// ============================================================================
+// MAIN CHORES FUNCTIONS (FAMILY-SCOPED)
+// Main chores are now stored under: users/{familyId}/mainChores/chores
+// ============================================================================
+
+/**
+ * Load main chores for a specific family
+ * @param {string} familyId - The family's ID
+ * @returns {Promise<array>} Array of main chores
+ */
+export async function loadMainChores(familyId) {
+  if (!familyId) {
+    console.error("loadMainChores: familyId is required");
+    return [];
+  }
+
+  try {
+    const ref = doc(db, "users", familyId, "mainChores", "chores");
+    const snap = await getDoc(ref);
+
+    if (snap.exists()) {
+      return snap.data().chores || [];
+    }
+    return [];
+  } catch (error) {
+    console.error("Error loading main chores:", error);
+    return [];
+  }
+}
+
+/**
+ * Save main chores for a specific family
+ * @param {string} familyId - The family's ID
+ * @param {array} chores - Array of chores to save
+ */
+export async function saveMainChores(familyId, chores) {
+  if (!familyId) {
+    console.error("saveMainChores: familyId is required");
+    throw new Error("familyId is required");
+  }
+
+  const ref = doc(db, "users", familyId, "mainChores", "chores");
   await setDoc(ref, { chores }, { merge: true });
 }
 
-export async function updateMainChores(chores) {
-  const ref = doc(db, "main", "chores");
+/**
+ * Update main chores for a specific family
+ * @param {string} familyId - The family's ID
+ * @param {array} chores - Array of chores to update
+ */
+export async function updateMainChores(familyId, chores) {
+  if (!familyId) {
+    console.error("updateMainChores: familyId is required");
+    throw new Error("familyId is required");
+  }
+
+  const ref = doc(db, "users", familyId, "mainChores", "chores");
   await updateDoc(ref, { chores });
 }

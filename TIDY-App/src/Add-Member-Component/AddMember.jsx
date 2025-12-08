@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./AddMember.css";
 import { saveMemberToDB, removeMemberFromDB } from "../firebaseHelper";
 
-function AddMember({ onAddMember, onRemoveMember, existingMembers }) {
+function AddMember({ onAddMember, onRemoveMember, existingMembers, familyId }) {
   const [members, setMembers] = useState([
     { id: 2, name: "", isEditing: false, isAdded: false },
     { id: 3, name: "", isEditing: false, isAdded: false },
@@ -58,7 +58,7 @@ function AddMember({ onAddMember, onRemoveMember, existingMembers }) {
 
     onAddMember(newMember);
     try {
-      await saveMemberToDB(newMember);
+      await saveMemberToDB(familyId, newMember);
     } catch (error) {
       console.error("Error saving member to Firestore:", error);
       alert("Failed to save member. Check console for details.");
@@ -95,7 +95,7 @@ function AddMember({ onAddMember, onRemoveMember, existingMembers }) {
 
     onRemoveMember(memberId);
     try {
-      await removeMemberFromDB(memberId);
+      await removeMemberFromDB(familyId, memberId);
     } catch (error) {
       console.error("Error removing member from Firestore:", error);
       alert("Failed to remove member. Check console for details.");

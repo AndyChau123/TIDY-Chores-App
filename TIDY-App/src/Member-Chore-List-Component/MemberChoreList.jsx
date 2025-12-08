@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import "./MemberChoreList.css";
-import { updateChoresInDB } from "../firebaseHelper";
 
 // ============================================================================
 // HELPER FUNCTION - Properly toggles chore with timestamp and completedBefore flag
@@ -26,7 +25,7 @@ export function toggleChoreCompletion(chore) {
   }
 }
 
-function MemberChoreList({ members, onUpdateMemberChores, userId }) {
+function MemberChoreList({ members, onUpdateMemberChores, userId, familyId }) {
   const priorityColors = {
     low: "#D1FAE5",
     medium: "#FEF3C7",
@@ -34,6 +33,9 @@ function MemberChoreList({ members, onUpdateMemberChores, userId }) {
   };
 
   const [inputs, setInputs] = useState({});
+
+  // Use familyId if provided, otherwise fall back to userId
+  const effectiveFamilyId = familyId || userId;
 
   async function handleAddChore(memberId) {
     const choreTitle = inputs[memberId]?.trim();
@@ -51,13 +53,8 @@ function MemberChoreList({ members, onUpdateMemberChores, userId }) {
     const member = members.find((m) => m.id === memberId);
     const updated = [newChore, ...(member.chores || [])];
 
+    // Call parent handler - App.jsx will handle saving to Firebase with familyId
     onUpdateMemberChores(memberId, updated);
-    try {
-      await updateChoresInDB(memberId, updated);
-    } catch (error) {
-      console.error("Error adding chore to Firestore:", error);
-      alert("Failed to add chore. Check console for details.");
-    }
 
     setInputs({ ...inputs, [memberId]: "" });
   }
@@ -75,23 +72,16 @@ function MemberChoreList({ members, onUpdateMemberChores, userId }) {
 
     // This will trigger App.jsx's handleUpdateMemberChores
     // which checks for new completions (completedBefore = false) and updates quests
+    // App.jsx handles saving to Firebase with familyId
     onUpdateMemberChores(memberId, updated);
-
-    // Note: updateChoresInDB is called in App.jsx's handleUpdateMemberChores
-    // so we don't need to call it here to avoid duplicate calls
   }
 
   async function removeChore(memberId, choreId) {
     const member = members.find((m) => m.id === memberId);
     const updated = member.chores.filter((c) => c.id !== choreId);
 
+    // Call parent handler - App.jsx will handle saving to Firebase with familyId
     onUpdateMemberChores(memberId, updated);
-    try {
-      await updateChoresInDB(memberId, updated);
-    } catch (error) {
-      console.error("Error removing chore from Firestore:", error);
-      alert("Failed to remove chore. Check console for details.");
-    }
   }
 
   return (
