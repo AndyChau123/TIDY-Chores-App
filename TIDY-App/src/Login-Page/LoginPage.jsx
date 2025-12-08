@@ -134,31 +134,33 @@ function LoginPage() {
         throw new Error('Could not generate unique code. Please try again.');
       }
 
-      // 3. Create family document in Firestore
+      // 3. Create family document in 'families' collection (ONLY for code lookup)
       const familyId = user.uid;
       await setDoc(doc(db, 'families', familyId), {
         code: newCode,
         name: familyName || 'My Family',
         ownerEmail: signupEmail,
         ownerUid: user.uid,
-        createdAt: new Date().toISOString(),
-        currency: 100,
-        members: [],
-        settings: {
-          theme: 'default',
-          notifications: true
-        }
+        createdAt: new Date().toISOString()
       });
 
-      // 4. Store in localStorage for app access
+      // 4. Create user document in 'users' collection (stores ALL actual data)
+      await setDoc(doc(db, 'users', familyId), {
+        displayName: familyName || 'My Family',
+        currency: 0, // Starting currency
+        createdAt: new Date().toISOString(),
+        lastCurrencyUpdate: new Date().toISOString()
+      });
+
+      // 5. Store in localStorage for app access
       localStorage.setItem('familyId', familyId);
       localStorage.setItem('familyCode', newCode);
       localStorage.setItem('familyName', familyName || 'My Family');
 
-      // 5. Sign out of Firebase Auth (we use code-based access)
+      // 6. Sign out of Firebase Auth (we use code-based access)
       await signOut(auth);
 
-      // 6. Show the generated code
+      // 7. Show the generated code
       setGeneratedCode(newCode);
       setShowSignup(false);
       setShowCodeDisplay(true);
