@@ -97,16 +97,16 @@ export function ShopButton({ onClick }) {
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
-        boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)',
+        boxShadow: '0 4px 12px rgba(51, 122, 255, 0.3)',
         transition: 'transform 0.2s, box-shadow 0.2s'
       }}
       onMouseEnter={(e) => {
         e.target.style.transform = 'translateY(-2px)';
-        e.target.style.boxShadow = '0 6px 16px rgba(139, 92, 246, 0.4)';
+        e.target.style.boxShadow = '0 6px 16px rgba(51, 122, 255, 0.3)';
       }}
       onMouseLeave={(e) => {
         e.target.style.transform = 'translateY(0)';
-        e.target.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.3)';
+        e.target.style.boxShadow = '0 4px 12px rgba(51, 122, 255, 0.3)';
       }}
     >
       🛒 Shop
@@ -133,16 +133,16 @@ export function QuestsButton({ onClick }) {
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
-        boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
+        boxShadow: '0 4px 12px rgba(255, 61, 61, 0.54)',
         transition: 'transform 0.2s, box-shadow 0.2s'
       }}
       onMouseEnter={(e) => {
         e.target.style.transform = 'translateY(-2px)';
-        e.target.style.boxShadow = '0 6px 16px rgba(245, 158, 11, 0.4)';
+        e.target.style.boxShadow = '0 6px 16px rgba(255, 58, 58, 0.77)';
       }}
       onMouseLeave={(e) => {
         e.target.style.transform = 'translateY(0)';
-        e.target.style.boxShadow = '0 4px 12px rgba(245, 158, 11, 0.3)';
+        e.target.style.boxShadow = '0 4px 12px rgba(255, 58, 58, 0.77)';
       }}
     >
       📜 Quests
