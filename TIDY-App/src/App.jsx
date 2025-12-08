@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { loadMembersFromDB, updateChoresInDB } from "./firebaseHelper.js";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { getAuth, signOut } from "firebase/auth";
 
 import "./App.css";
 import AddMember from "./Add-Member-Component/AddMember.jsx";
@@ -36,6 +37,7 @@ import {
 } from "./Shop-Quest-Component/ShopQuestModals.jsx";
 
 function AppContent() {
+  const navigate = useNavigate();
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -116,6 +118,18 @@ function AppContent() {
 
     initializeUser();
   }, [userId]);
+
+  // Logout handle
+    const handleLogout = async () => {
+    try {
+      const auth = getAuth();
+      await signOut(auth);
+      navigate("/"); // Redirect to login page
+    } catch (error) {
+      console.error("Error logging out:", error);
+      alert("Error logging out. Please try again.");
+    }
+  };
 
   // ============================================================================
   // CURRENCY REFRESH FUNCTION
@@ -334,6 +348,20 @@ function AppContent() {
           loading={currencyLoading}
           onRefresh={refreshCurrency}
         />
+        <button
+          onClick={handleLogout}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#ef4444',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontWeight: '500'
+          }}
+        >
+          Logout
+        </button>
       </div>
 
       <div className="app-content">

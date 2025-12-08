@@ -1,5 +1,6 @@
 import React from 'react';
 import './Currency.css'; // Your existing CSS file
+import coinsIcon from '../assets/coins.png';
 
 // ============================================================================
 // UPDATED CURRENCY COMPONENT
@@ -12,7 +13,7 @@ function Currency({ userId, balance, loading, onRefresh }) {
     return (
       <div className="currency-container">
         <div className="currency-display loading">
-          <span className="currency-icon">🪙</span>
+          <img src={coinsIcon} alt="Coins" className="currency-icon" />
           <span className="currency-amount">--</span>
           <span className="currency-label">Coins</span>
         </div>
@@ -23,7 +24,7 @@ function Currency({ userId, balance, loading, onRefresh }) {
   return (
     <div className="currency-container">
       <div className="currency-display">
-        <span className="currency-icon">🪙</span>
+        <img src={coinsIcon} alt="Coins" className="currency-icon" />
         <span className="currency-amount">{balance || 0}</span>
         <span className="currency-label">Coins</span>
       </div>

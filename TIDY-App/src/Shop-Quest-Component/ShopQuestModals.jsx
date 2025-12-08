@@ -7,6 +7,7 @@ import {
   getShopDecorations
 } from "../decorationHelper";
 import { deductCurrency } from "../questCurrencyHelper";
+import coinsIcon from "../assets/coins.png"; // Add this import
 
 // ============================================================================
 // MODAL COMPONENT
@@ -86,7 +87,7 @@ export function ShopButton({ onClick }) {
       onClick={onClick}
       style={{
         padding: '10px 20px',
-        backgroundColor: '#8b5cf6',
+        backgroundColor: '#37a2ffff',
         color: 'white',
         border: 'none',
         borderRadius: '12px',
@@ -122,7 +123,7 @@ export function QuestsButton({ onClick }) {
       onClick={onClick}
       style={{
         padding: '10px 20px',
-        backgroundColor: '#f59e0b',
+        backgroundColor: '#ff3939ff',
         color: 'white',
         border: 'none',
         borderRadius: '12px',
@@ -239,8 +240,8 @@ export function ShopContent({ userId, currency, onPurchase, onDecorationChange }
         alignItems: 'center'
       }}>
         <span style={{ fontWeight: 'bold', color: '#92400e' }}>Your Balance:</span>
-        <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#d97706' }}>
-          {currency} 🪙
+        <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#d97706', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          {currency} <img src={coinsIcon} alt="Coins" style={{ width: '20px', height: '20px' }} />
         </span>
       </div>
 
@@ -307,8 +308,8 @@ export function ShopContent({ userId, currency, onPurchase, onDecorationChange }
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
                   {!decoration.isPurchased ? (
                     <>
-                      <span style={{ fontWeight: 'bold', color: '#d97706' }}>
-                        {decoration.price} 🪙
+                      <span style={{ fontWeight: 'bold', color: '#d97706', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        {decoration.price} <img src={coinsIcon} alt="Coins" style={{ width: '16px', height: '16px' }} />
                       </span>
                       <button
                         onClick={() => handlePurchase(decoration)}
@@ -445,8 +446,8 @@ export function QuestContent({ userId, quests, loading, onClaimReward, onRefresh
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', marginLeft: '16px' }}>
-                  <span style={{ fontWeight: 'bold', color: '#d97706' }}>
-                    +{quest.reward} 🪙
+                  <span style={{ fontWeight: 'bold', color: '#d97706', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    +{quest.reward} <img src={coinsIcon} alt="Coins" style={{ width: '16px', height: '16px' }} />
                   </span>
                   {quest.isCompleted && !quest.isClaimed && (
                     <button

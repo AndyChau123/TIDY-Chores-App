@@ -3,7 +3,7 @@
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  background: linear-gradient(135deg, #ffc401 0%, #ffe75d 100%);
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
 }
@@ -20,7 +20,9 @@
 }
 
 .currency-icon {
-  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }
 
 .currency-amount {
