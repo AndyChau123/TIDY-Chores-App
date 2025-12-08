@@ -39,9 +39,12 @@ function toggleChoreCompletion(chore) {
   }
 }
 
-function ChoreList({ userId = "current-user-id", onQuestUpdate }) {
+function ChoreList({ userId = "current-user-id", familyId, onQuestUpdate }) {
   const [chores, setChores] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Use familyId if provided, otherwise fall back to userId
+  const effectiveFamilyId = familyId || userId;
 
   // ============================================================================
   // USER NAME STATE
@@ -52,13 +55,18 @@ function ChoreList({ userId = "current-user-id", onQuestUpdate }) {
 
   useEffect(() => {
     async function load() {
+      if (!effectiveFamilyId) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        // Load chores
-        const stored = await loadMainChores();
+        // Load chores FOR THIS FAMILY
+        const stored = await loadMainChores(effectiveFamilyId);
         setChores(stored);
 
         // Load user name
-        const name = await getUserName(userId);
+        const name = await getUserName(effectiveFamilyId);
         if (name) {
           setUserName(name);
         }
@@ -69,7 +77,7 @@ function ChoreList({ userId = "current-user-id", onQuestUpdate }) {
       }
     }
     load();
-  }, [userId]);
+  }, [effectiveFamilyId]);
 
   // ============================================================================
   // NAME EDITING FUNCTIONS
@@ -87,7 +95,7 @@ function ChoreList({ userId = "current-user-id", onQuestUpdate }) {
     setIsEditingName(false);
 
     try {
-      await saveUserName(userId, newName);
+      await saveUserName(effectiveFamilyId, newName);
     } catch (error) {
       console.error("Error saving user name:", error);
     }
@@ -116,7 +124,7 @@ function ChoreList({ userId = "current-user-id", onQuestUpdate }) {
 
     const updated = [choreWithTimestamp, ...chores];
     setChores(updated);
-    await saveMainChores(updated);
+    await saveMainChores(effectiveFamilyId, updated);
   }
 
   // Toggle complete with timestamp tracking and quest integration
@@ -132,8 +140,8 @@ function ChoreList({ userId = "current-user-id", onQuestUpdate }) {
     // Update local state FIRST for responsive UI
     setChores(updated);
 
-    // Save to Firebase
-    await updateMainChores(updated);
+    // Save to Firebase WITH familyId
+    await updateMainChores(effectiveFamilyId, updated);
 
     // Check if this is a FIRST-TIME completion
     const newChore = updated.find(c => c.id === id);
@@ -147,7 +155,7 @@ function ChoreList({ userId = "current-user-id", onQuestUpdate }) {
 
       try {
         // Update quest progress
-        await onChoreCompleted(userId);
+        await onChoreCompleted(effectiveFamilyId);
 
         // Notify parent to refresh quests/currency if callback provided
         if (onQuestUpdate) {
@@ -166,7 +174,7 @@ function ChoreList({ userId = "current-user-id", onQuestUpdate }) {
   async function removeChore(id) {
     const updated = chores.filter((c) => c.id !== id);
     setChores(updated);
-    await updateMainChores(updated);
+    await updateMainChores(effectiveFamilyId, updated);
   }
 
   if (loading) return <p>Loading chores...</p>;
